@@ -1,4 +1,8 @@
 <RCC>
-    <qresource prefix="MainWindow">
+    <qresource prefix="/MainWindow"/>
+    <qresource prefix="/">
+        <file>images/保护.ico</file>
+        <file>images/报警.ico</file>
+        <file>images/正常.ico</file>
     </qresource>
 </RCC>

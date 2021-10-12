@@ -78,28 +78,42 @@ void DataCenter::dataAnalysisUdp(quint8 data)
 		if (bufferIndex == 11)//一帧数据接收完成，id+data共11个字节
 		{
 			quint8 idAndData[10];//帧id和数据一起接收
-			memcpy(idAndData, receiveBuffer + 3, 10);
+			memcpy(idAndData, receiveBuffer, 11);
 			recFlag |= OVER_FLAG;
-			/*--------*/  switch (receiveBuffer[1])/*--------在此进行数据分发------------*/
+
+			quint8 FunctionNo;//功能号
+			FunctionNo = receiveBuffer[1];
+
+			/*-------------在此进行数据分发------------*/
+			if (FunctionNo >= 0 || FunctionNo < 99) //单体电压完整帧
+			{}
+			else if(FunctionNo = 99)//单体电压尾帧
+			{}
+			else if (FunctionNo >= 100 || FunctionNo < 149)//单体温度完整帧
+			{}
+			else if (FunctionNo = 149)//单体温度尾帧
+			{}
+			else if (FunctionNo = 150)//电压最值帧
 			{
-			case (quint8)BMS::CommSuccFunc:
-				receiveCommSucc(idAndData, 10);
-				break;
-			case (quint8)BMS::VolCalFunc:
-				receiveVolCal(idAndData, 10);
-				break;
-			case (quint8)BMS::CurCalFunc://GPS信息
-				receiveCurCal(idAndData, 10);
-				break;
-			case (quint8)BMS::BatPackConfFunc://DHT22信息
-				receiveBatPackConf(idAndData, 10);
-				break;
-			case (quint8)BMS::AlaProParFunc://AHRS信息
-				receiveAlaProPar(idAndData, 10);
-				break;
-			defalut://未定义功能号
-				emit warning("tcpSocket接收到未定义数据格式！.");
-				break;
+				receiveVolMaxMin(idAndData, 11);
+			}
+			else if (FunctionNo = 151)//温度最值帧
+			{}
+			else if (FunctionNo == 152)//电池组最值帧
+			{
+				receiveBatPackStat(idAndData, 11);
+			}
+			else if (FunctionNo = 153)//充放电截止信息帧
+			{
+				receiveCharDisCutOff(idAndData, 11);
+			}
+			else if (FunctionNo = 154)//SOC、SOH信息帧
+			{
+				receiveSOCSOH(idAndData, 11);
+			}
+			else if (FunctionNo = 155)//BMS状态帧
+			{
+				receiveBMSState(idAndData, 11);
 			}
 
 			recFlag &= ~OVER_FLAG;
@@ -110,25 +124,152 @@ void DataCenter::dataAnalysisUdp(quint8 data)
 		bufferIndex--;
 }
 
-//接收通信成功指令数据
-void DataCenter::receiveCommSucc(quint8* pointer, int count)
+//接收电池组状态信息数据
+void DataCenter::receiveBatPackStat(quint8* pointer, int count)
 {
+	//quint16 temp;
+	//temp = (qint16)pointer[2];
+	//batPackStatData.boardNo = (float)temp / 10;//板卡号，电池组不需要
+
+	qint16 temp;
+	temp = (qint16)pointer[3];
+	temp <<= 8;
+	temp |= (quint16)pointer[4];
+	batPackStatData.totalVol = (float)temp / 10;//总电压
+
+	temp = (qint16)pointer[5];
+	temp <<= 8;
+	temp |= (quint16)pointer[6];
+	batPackStatData.totalCur = (float)temp / 10;//总电流
+
+	temp = (qint16)pointer[7];
+	temp <<= 8;
+	temp |= (quint16)pointer[8];
+	batPackStatData.aveVol = temp;//单体平均电压
+
+	temp = (qint16)pointer[9];
+	temp <<= 8;
+	temp |= (quint16)pointer[10];
+	batPackStatData.volDeff = temp;//单体压差
+
+	emit newData(DataType::BatPackStat);
 }
-//接收电压校准数据
-void DataCenter::receiveVolCal(quint8* pointer, int count)
+
+//读取电压最值
+void DataCenter::receiveVolMaxMin(quint8* pointer, int count)
 {
+	qint16 temp;
+	temp = (qint16)pointer[3];
+	temp <<= 8;
+	temp |= (quint16)pointer[4];
+	volMaxMinData.maxVol = temp;//max电压,1LSB=1mv
+
+	temp = (qint16)pointer[5];
+	temp <<= 8;
+	temp |= (quint16)pointer[6];
+	volMaxMinData.maxNo = temp;//max电压编号,1LSB=1mv
+
+	temp = (qint16)pointer[7];
+	temp <<= 8;
+	temp |= (quint16)pointer[8];
+	volMaxMinData.minVol = temp;//min电压,1LSB=1mv
+
+	temp = (qint16)pointer[9];
+	temp <<= 8;
+	temp |= (quint16)pointer[10];
+	volMaxMinData.minNo = temp;//min电压编号,1LSB=1mv
+
+	emit newData(DataType::VolMaxMin);
 }
-//接收电流校准数据
-void DataCenter::receiveCurCal(quint8* pointer, int count)
+
+void DataCenter::receiveTempMaxMin(quint8* pointer, int count)
 {
+	quint16 temp;
+	
+	tempMaxMinData.tempMax = pointer[3] - 40;//max温度,有40度正向偏置
+	tempMaxMinData.tempMin = pointer[4] - 40;//min温度,有40度正向偏置
+
+	temp = (qint16)pointer[5];
+	temp <<= 8;
+	temp |= (quint16)pointer[6];
+	tempMaxMinData.maxNo = temp;//max温度编号
+
+	temp = (qint16)pointer[7];
+	temp <<= 8;
+	temp |= (quint16)pointer[8];
+	tempMaxMinData.minNo = temp;//min温度编号
+
+	tempMaxMinData.tempDeff = pointer[9]; //温差
+	tempMaxMinData.aveTemp = pointer[10];//电池组平均温度
+
+	emit newData(DataType::TempMaxMin);
 }
-//接收电池组配置数据
-void DataCenter::receiveBatPackConf(quint8* pointer, int count)
+
+void DataCenter::receiveCharDisCutOff(quint8* pointer, int count)
 {
+	qint16 temp;
+	temp = (qint16)pointer[3];
+	temp <<= 8;
+	temp |= (quint16)pointer[4];
+	charDisCutOffData.charCutOffTotalVol = (float)temp / 10;//充电截止总电压，1LSB=0.1V
+
+	temp = (qint16)pointer[5];
+	temp <<= 8;
+	temp |= (quint16)pointer[6];
+	charDisCutOffData.disCutOffTotalVol = (float)temp / 10;//放点截止总电压，1LSB=0.1V
+
+	temp = (qint16)pointer[7];
+	temp <<= 8;
+	temp |= (quint16)pointer[8];
+	charDisCutOffData.maxAllowedCharCur = (float)temp / 10;//最大允许充电电流，1LSB=0.1A
+
+	temp = (qint16)pointer[9];
+	temp <<= 8;
+	temp |= (quint16)pointer[10];
+	charDisCutOffData.maxAllowedDisCur = (float)temp / 10;//最大允许放电电流，1LSB=0.1A
+
+	emit newData(DataType::CharDisCutOff);
 }
-//接收报警&保护参数数据
-void DataCenter::receiveAlaProPar(quint8* pointer, int count)
+
+void DataCenter::receiveSOCSOH(quint8* pointer, int count)
 {
+	qint16 temp;
+	temp = (qint16)pointer[3];
+	temp <<= 8;
+	temp |= (quint16)pointer[4];
+	SOCSOHData.soc = (float)temp / 10;//SOC，1LSB=0.1%
+
+	temp = (qint16)pointer[5];
+	temp <<= 8;
+	temp |= (quint16)pointer[6];
+	SOCSOHData.soh = (float)temp / 10;//放点截止总电压，1LSB=0.1V
+
+	emit newData(DataType::SOCSOH);
+}
+
+void DataCenter::receiveBMSState(quint8* pointer, int count)
+{
+	qint16 temp;
+	
+	BMSStateData.batState = pointer[3];//电池状态
+	BMSStateData.relayState = pointer[4];//接触器的继电器状态
+
+	temp = (qint16)pointer[5];
+	temp <<= 8;
+	temp |= (quint16)pointer[6];
+	BMSStateData.fetalErr = temp;//一级保护标志
+
+	temp = (qint16)pointer[7];
+	temp <<= 8;
+	temp |= (quint16)pointer[8];
+	BMSStateData.warningErr = temp;//二级报警标志
+
+	temp = (qint16)pointer[9];
+	temp <<= 8;
+	temp |= (quint16)pointer[10];
+	BMSStateData.totalVolThreshold = (float)temp / 10;//电压阈值1LSB=0.1V
+
+	emit newData(DataType::BMSState);
 }
 
 void DataCenter::udpStateChanged(QAbstractSocket::SocketState socketState)

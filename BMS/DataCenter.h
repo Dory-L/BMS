@@ -12,8 +12,10 @@ public:
 	DataCenter(QObject *parent);
 	~DataCenter();
 
+	QUdpSocket* udpSocket;//udpClient
+
 	//数据类型,用于通知界面更新数据
-	enum DataType { CommSuccData, VolCalData, CurCalData, BatPackConfData, AlaProParData};
+	enum DataType { BatPackStat, VolMaxMin, TempMaxMin, CharDisCutOff, SOCSOH, BMSState};
 
 	//发送数据到网络
 	void sendDataToUdp(char *pointer, int count, BMS::DataFunc func);
@@ -21,6 +23,14 @@ public:
 	//状态查询
 	//获取网络状态 udp不需要？
 	QAbstractSocket::SocketState getUdpState() { return udpSocket->state(); }
+
+	//获取相关信息
+	BMS::BatPackStatDataSt getBatPackStatData() { return batPackStatData; }
+	BMS::VolMaxMinDataSt   getVolMaxMinData() { return volMaxMinData; }
+	BMS::TempMaxMinDataSt  getTempMaxMinData() { return tempMaxMinData; }
+	BMS::CharDisCutOffDataSt getCharDisCutOffData() { return charDisCutOffData; }
+	BMS::SOCSOHDataSt	   getSOCSOHData() { return SOCSOHData; }
+	BMS::BMSStateDataSt	   getBMSStateData() { return BMSStateData; }
 signals:
 	void newData(DataCenter::DataType type);
 	void warning(QString str);
@@ -37,26 +47,27 @@ private slots :
 	void udpErrorOccur(QAbstractSocket::SocketError socketError);
 
 private:
-	QUdpSocket* udpSocket;//udpClient
+	
 	
 	//信号槽
 	void iniConnect();
 
 	//数据解析
 	void dataAnalysisUdp(quint8 data);//网络数据解码
-	//quint8 getSunCheck(quint8 *pointer, int count);//对字节求和
 
 	//具体数据接收（根据功能号的不同会调用不同的接收函数）
-	void receiveCommSucc(quint8* pointer, int count);
-	void receiveVolCal(quint8* pointer, int count);
-	void receiveCurCal(quint8* pointer, int count);
-	void receiveBatPackConf(quint8* pointer, int count);
-	void receiveAlaProPar(quint8* pointer, int count);	
+	void receiveBatPackStat(quint8* pointer, int count);//读取电池组状态信息
+	void receiveVolMaxMin(quint8* pointer, int count);//读取电压最值
+	void receiveTempMaxMin(quint8* pointer, int count);//读取温度最值
+	void receiveCharDisCutOff(quint8* pointer, int count);//读取充放电截止信息
+	void receiveSOCSOH(quint8* pointer, int count);//读取SOCSOH数据
+	void receiveBMSState(quint8* pointer, int count);//读取BMS状态数据
 
 	//接收的数据存储在下面的变量中，读取时直接返回这些数据
-	BMS::CommSuccDataSt	      commSuccData;
-	BMS::VolCalDataSt         volCalData;
-	BMS::CurCalDataSt		  curCalData;
-	BMS::BatPackConfDataSt	  batPackConfData;
-	BMS::AlaProParDataSt	  alaProParData;
+	BMS::BatPackStatDataSt	  batPackStatData;
+	BMS::VolMaxMinDataSt	  volMaxMinData;
+	BMS::TempMaxMinDataSt	  tempMaxMinData;
+	BMS::CharDisCutOffDataSt  charDisCutOffData;
+	BMS::SOCSOHDataSt		  SOCSOHData;
+	BMS::BMSStateDataSt		  BMSStateData;
 };

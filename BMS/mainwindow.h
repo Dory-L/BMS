@@ -14,14 +14,12 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = Q_NULLPTR);
 
-	QUdpSocket *udpSocket;
-
 private:
     Ui::MainWindowClass ui;
 	Dialog* dlg;//udp对话框
 	QString aimIp;//目标ip
 	int aimPort;//目标端口
-	DataCenter *dataCenter;//数据中心
+	DataCenter* dataCenter;//数据中心
 
 	void iniConnect();//初始化信号槽
 	void guiInitate();//初始化界面
