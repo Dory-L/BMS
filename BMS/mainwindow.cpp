@@ -17,8 +17,6 @@ void MainWindow::iniConnect()
 
 	//dataCenter
 	connect(dataCenter, &DataCenter::newData, this, &MainWindow::dataChange);
-
-
 }
 
 void MainWindow::guiInitate()
@@ -125,6 +123,7 @@ void MainWindow::dataChange(DataCenter::DataType type)
 		default:
 			break;
 		}
+
 		switch (BMSStateData.relayState)//继电器状态
 		{
 		case 0:
@@ -133,5 +132,133 @@ void MainWindow::dataChange(DataCenter::DataType type)
 		case 1:
 			ui.lineEdit_relayState->setText(u8"闭合");
 		}
+
+		switch (BMSStateData.fetalErr)//一级保护标志
+		{
+		case BMS::ERR_CELL_UV://单体电压欠压
+			ui.label_cellQainYa->setPixmap(QPixmap(":/images/保护.ico"));
+			break;
+		case BMS::ERR_CELL_OV://单体电压过压
+			ui.label_cellGuoYa->setPixmap(QPixmap(":/images/保护.ico"));
+			break;
+		case BMS::ERR_PACK_UV://总电压欠压
+			ui.label_packQianYa->setPixmap(QPixmap(":/images/保护.ico"));
+			break;
+		case BMS::ERR_PACK_OV://总电压过压
+			ui.label_packGuoYa->setPixmap(QPixmap(":/images/保护.ico"));
+			break;
+		case BMS::ERR_CHR_UT://充电温度过低
+			ui.label_chDiWen->setPixmap(QPixmap(":/images/保护.ico"));
+			break;
+		case BMS::ERR_CHR_OT://充电温度过高
+			ui.label_chGaoWen->setPixmap(QPixmap(":/images/保护.ico"));
+			break;
+		case BMS::ERR_DISCH_UT://放电温度过低
+			ui.label_disDiWen->setPixmap(QPixmap(":/images/保护.ico"));
+			break;
+		case BMS::ERR_DISCH_OT://放电温度过高
+			ui.label_disGaoWen->setPixmap(QPixmap(":/images/保护.ico"));
+			break;
+		case BMS::ERR_CHR_OC://充电过流
+			ui.label_chGuoLiu->setPixmap(QPixmap(":/images/保护.ico"));
+			break;
+		case BMS::ERR_DISCH_OC://放电过流
+			ui.label_disGuoLiu->setPixmap(QPixmap(":/images/保护.ico"));
+			break;
+		case BMS::ERR_BMU_COMM://BMU通信异常
+			ui.label_tongXinGuZhang->setPixmap(QPixmap(":/images/保护.ico"));
+			break;
+		case BMS::ERR_INS_LOW://绝缘过低
+			ui.label_jueYuanGuzhang->setPixmap(QPixmap(":/images/保护.ico"));
+			break;
+		case BMS::ERR_VOLT_DIFF://压差过大
+			ui.label_yaChaGuoDa->setPixmap(QPixmap(":/images/保护.ico"));
+			break;
+		case BMS::ERR_TEMP_DIFF://温差过大
+			ui.label_wenChaGuoDa->setPixmap(QPixmap(":/images/保护.ico"));
+			break;
+		default:
+			break;
+		}
+
+		switch (BMSStateData.warningErr)//二级保护标志
+		{
+		case BMS::ERR_CELL_UV://单体电压欠压
+			ui.label_cellQainYa->setPixmap(QPixmap(":/images/报警.ico"));
+			break;
+		case BMS::ERR_CELL_OV://单体电压过压
+			ui.label_cellGuoYa->setPixmap(QPixmap(":/images/报警.ico"));
+			break;
+		case BMS::ERR_PACK_UV://总电压欠压
+			ui.label_packQianYa->setPixmap(QPixmap(":/images/报警.ico"));
+			break;
+		case BMS::ERR_PACK_OV://总电压过压
+			ui.label_packGuoYa->setPixmap(QPixmap(":/images/报警.ico"));
+			break;
+		case BMS::ERR_CHR_UT://充电温度过低
+			ui.label_chDiWen->setPixmap(QPixmap(":/images/报警.ico"));
+			break;
+		case BMS::ERR_CHR_OT://充电温度过高
+			ui.label_chGaoWen->setPixmap(QPixmap(":/images/报警.ico"));
+			break;
+		case BMS::ERR_DISCH_UT://放电温度过低
+			ui.label_disDiWen->setPixmap(QPixmap(":/images/报警.ico"));
+			break;
+		case BMS::ERR_DISCH_OT://放电温度过高
+			ui.label_disGaoWen->setPixmap(QPixmap(":/images/报警.ico"));
+			break;
+		case BMS::ERR_CHR_OC://充电过流
+			ui.label_chGuoLiu->setPixmap(QPixmap(":/images/报警.ico"));
+			break;
+		case BMS::ERR_DISCH_OC://放电过流
+			ui.label_disGuoLiu->setPixmap(QPixmap(":/images/报警.ico"));
+			break;
+		case BMS::ERR_BMU_COMM://BMU通信异常
+			ui.label_tongXinGuZhang->setPixmap(QPixmap(":/images/报警.ico"));
+			break;
+		case BMS::ERR_INS_LOW://绝缘过低
+			ui.label_jueYuanGuzhang->setPixmap(QPixmap(":/images/报警.ico"));
+			break;
+		case BMS::ERR_VOLT_DIFF://压差过大
+			ui.label_yaChaGuoDa->setPixmap(QPixmap(":/images/报警.ico"));
+			break;
+		case BMS::ERR_TEMP_DIFF://温差过大
+			ui.label_wenChaGuoDa->setPixmap(QPixmap(":/images/报警.ico"));
+			break;
+		default:
+			break;
+		}
+
+		quint16 ERR_FLAG = BMSStateData.fetalErr | BMSStateData.warningErr;
+		ERR_FLAG = ~ERR_FLAG;//为1的位为正常
+		if (ERR_FLAG & BMS::ERR_CELL_UV)//单体电压欠压
+			ui.label_cellQainYa->setPixmap(QPixmap(":/images/正常.ico"));
+		if (ERR_FLAG & BMS::ERR_CELL_OV)//单体电压过压
+			ui.label_cellGuoYa->setPixmap(QPixmap(":/images/正常.ico"));
+		if (ERR_FLAG & BMS::ERR_PACK_UV)//总电压欠压
+			ui.label_packQianYa->setPixmap(QPixmap(":/images/正常.ico"));
+		if (ERR_FLAG & BMS::ERR_PACK_OV)//总电压过压
+			ui.label_packGuoYa->setPixmap(QPixmap(":/images/正常.ico"));
+		if (ERR_FLAG & BMS::ERR_CHR_UT)//充电温度过低
+			ui.label_chDiWen->setPixmap(QPixmap(":/images/正常.ico"));
+		if (ERR_FLAG & BMS::ERR_CHR_OT)//充电温度过高
+			ui.label_chGaoWen->setPixmap(QPixmap(":/images/正常.ico"));
+		if (ERR_FLAG & BMS::ERR_DISCH_UT)//放电温度过低
+			ui.label_disDiWen->setPixmap(QPixmap(":/images/正常.ico"));
+		if (ERR_FLAG & BMS::ERR_DISCH_OT)//放电温度过高
+			ui.label_disGaoWen->setPixmap(QPixmap(":/images/正常.ico"));
+		if (ERR_FLAG & BMS::ERR_CHR_OC)//充电过流
+			ui.label_chGuoLiu->setPixmap(QPixmap(":/images/正常.ico"));
+		if (ERR_FLAG & BMS::ERR_DISCH_OC)//放电过流
+			ui.label_disGuoLiu->setPixmap(QPixmap(":/images/正常.ico"));
+		if (ERR_FLAG & BMS::ERR_BMU_COMM)//BMU通信异常
+			ui.label_tongXinGuZhang->setPixmap(QPixmap(":/images/正常.ico"));
+		if (ERR_FLAG & BMS::ERR_INS_LOW)//绝缘过低
+			ui.label_jueYuanGuzhang->setPixmap(QPixmap(":/images/正常.ico"));
+		if (ERR_FLAG & BMS::ERR_VOLT_DIFF)//压差过大
+			ui.label_yaChaGuoDa->setPixmap(QPixmap(":/images/正常.ico"));
+		if (ERR_FLAG & BMS::ERR_TEMP_DIFF)//温差过大
+			ui.label_wenChaGuoDa->setPixmap(QPixmap(":/images/正常.ico"));
+
 	}
 }

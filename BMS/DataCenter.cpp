@@ -85,21 +85,23 @@ void DataCenter::dataAnalysisUdp(quint8 data)
 			FunctionNo = receiveBuffer[1];
 
 			/*-------------在此进行数据分发------------*/
-			if (FunctionNo >= 0 || FunctionNo < 99) //单体电压完整帧
-			{}
-			else if(FunctionNo = 99)//单体电压尾帧
-			{}
-			else if (FunctionNo >= 100 || FunctionNo < 149)//单体温度完整帧
-			{}
-			else if (FunctionNo = 149)//单体温度尾帧
-			{}
+			if (FunctionNo >= 0 || FunctionNo <= 99) //单体电压完整帧
+			{
+				receiveCellVol(idAndData, 11);
+			}
+			else if (FunctionNo >= 100 || FunctionNo <= 149)//单体温度完整帧
+			{
+				receiveCellTemp(idAndData, 11);
+			}
 			else if (FunctionNo = 150)//电压最值帧
 			{
 				receiveVolMaxMin(idAndData, 11);
 			}
 			else if (FunctionNo = 151)//温度最值帧
-			{}
-			else if (FunctionNo == 152)//电池组最值帧
+			{
+				receiveTempMaxMin(idAndData, 11);
+			}
+			else if (FunctionNo == 152)//电池组状态信息
 			{
 				receiveBatPackStat(idAndData, 11);
 			}
@@ -270,6 +272,48 @@ void DataCenter::receiveBMSState(quint8* pointer, int count)
 	BMSStateData.totalVolThreshold = (float)temp / 10;//电压阈值1LSB=0.1V
 
 	emit newData(DataType::BMSState);
+}
+
+void DataCenter::receiveCellVol(quint8* pointer, int count)//读取单体电压数据
+{
+	cellVolData.frameNo = pointer[1];
+
+	qint16 temp;
+	temp = (qint16)pointer[3];
+	temp <<= 8;
+	temp |= (quint16)pointer[4];
+	cellVolData.vol1 = temp;
+
+	temp = (qint16)pointer[5];
+	temp <<= 8;
+	temp |= (quint16)pointer[6];
+	cellVolData.vol2 = temp;
+
+	temp = (qint16)pointer[7];
+	temp <<= 8;
+	temp |= (quint16)pointer[8];
+	cellVolData.vol3 = temp;
+
+	temp = (qint16)pointer[9];
+	temp <<= 8;
+	temp |= (quint16)pointer[10];
+	cellVolData.vol4 = temp;
+
+	emit newData(DataType::CellVol);
+}
+
+void DataCenter::receiveCellTemp(quint8* pointer, int count)//读取单体电压数据
+{
+	cellTempData.frameNo = pointer[1];
+	cellTempData.temp1 = pointer[3];
+	cellTempData.temp2 = pointer[4];
+	cellTempData.temp3 = pointer[5];
+	cellTempData.temp4 = pointer[6];
+	cellTempData.temp5 = pointer[7];
+	cellTempData.temp6 = pointer[8];
+	cellTempData.temp7 = pointer[9];
+	cellTempData.temp8 = pointer[10];
+	emit newData(DataType::CellTemp);
 }
 
 void DataCenter::udpStateChanged(QAbstractSocket::SocketState socketState)

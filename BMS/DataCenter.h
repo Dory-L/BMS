@@ -15,7 +15,7 @@ public:
 	QUdpSocket* udpSocket;//udpClient
 
 	//数据类型,用于通知界面更新数据
-	enum DataType { BatPackStat, VolMaxMin, TempMaxMin, CharDisCutOff, SOCSOH, BMSState};
+	enum DataType { BatPackStat, VolMaxMin, TempMaxMin, CharDisCutOff, SOCSOH, BMSState, CellVol, CellTemp};
 
 	//发送数据到网络
 	void sendDataToUdp(char *pointer, int count, BMS::DataFunc func);
@@ -31,6 +31,8 @@ public:
 	BMS::CharDisCutOffDataSt getCharDisCutOffData() { return charDisCutOffData; }
 	BMS::SOCSOHDataSt	   getSOCSOHData() { return SOCSOHData; }
 	BMS::BMSStateDataSt	   getBMSStateData() { return BMSStateData; }
+	BMS::CellVolDataSt	   getCellVolData() { return CellVolData; }
+	BMS::CellTempDataSt	   getCellTempData() { return CellTempData; }
 signals:
 	void newData(DataCenter::DataType type);
 	void warning(QString str);
@@ -62,6 +64,8 @@ private:
 	void receiveCharDisCutOff(quint8* pointer, int count);//读取充放电截止信息
 	void receiveSOCSOH(quint8* pointer, int count);//读取SOCSOH数据
 	void receiveBMSState(quint8* pointer, int count);//读取BMS状态数据
+	void receiveCellVol(quint8* pointer, int count);//读取单体电压数据
+	void receiveCellTemp(quint8* pointer, int count);//读取单体电压数据
 
 	//接收的数据存储在下面的变量中，读取时直接返回这些数据
 	BMS::BatPackStatDataSt	  batPackStatData;
@@ -70,4 +74,6 @@ private:
 	BMS::CharDisCutOffDataSt  charDisCutOffData;
 	BMS::SOCSOHDataSt		  SOCSOHData;
 	BMS::BMSStateDataSt		  BMSStateData;
+	BMS::CellVolDataSt		  cellVolData;
+	BMS::CellTempDataSt		  cellTempData;
 };

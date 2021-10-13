@@ -14,42 +14,45 @@ namespace BMS {
 	};
 
 	enum BMSState : quint16 {
-		//一级保护
-		ERR_CELL_UV_I = 0x0001,//单体电压欠压
-		ERR_CELL_OV_I = 0x0002,//单体电压过压
-		ERR_PACK_UV_I = 0x0004,//总电压欠压
-		ERR_PACK_OV_I = 0x0008,//总电压过压
-		ERR_CHR_UT_I = 0x0010,//充电温度过低
-		ERR_CHR_OT_I = 0x0020,////充电温度过高
-		ERR_DISCH_UT_I = 0x0040,//放电温度过低
-		ERR_DISCH_OT_I = 0x0080,//放电温度过高
-		ERR_CHR_OC_I = 0x0100,//充电过流
-		ERR_DISCH_OC_I = 0x0200,//放电过流
-		ERR_BMU_COMM_I = 0x0400,//BMU通信异常
-		ERR_INS_LOW_I = 0x0800,//绝缘过低
-		ERR_VOLT_DIFF_I = 0x1000,//压差过大
-		ERR_TEMP_DIFF_I = 0x2000,//温差过大
+		//保护标志
+		ERR_CELL_UV = 0x0001,//单体电压欠压
+		ERR_CELL_OV = 0x0002,//单体电压过压
+		ERR_PACK_UV = 0x0004,//总电压欠压
+		ERR_PACK_OV = 0x0008,//总电压过压
+		ERR_CHR_UT = 0x0010,//充电温度过低
+		ERR_CHR_OT = 0x0020,////充电温度过高
+		ERR_DISCH_UT = 0x0040,//放电温度过低
+		ERR_DISCH_OT = 0x0080,//放电温度过高
+		ERR_CHR_OC = 0x0100,//充电过流
+		ERR_DISCH_OC = 0x0200,//放电过流
+		ERR_BMU_COMM = 0x0400,//BMU通信异常
+		ERR_INS_LOW = 0x0800,//绝缘过低
+		ERR_VOLT_DIFF = 0x1000,//压差过大
+		ERR_TEMP_DIFF = 0x2000,//温差过大
+	};
+	//单体电压数据定义
+	struct CellVolDataSt {
+		int frameNo;//帧标号0~99
+		int vol1;
+		int vol2;
+		int vol3;
+		int vol4;
+	};
 
-		//二级保护
-		ERR_CELL_UV_II = 0x0001,//单体电压欠压
-		ERR_CELL_OV_II = 0x0002,//单体电压过压
-		ERR_PACK_UV_II = 0x0004,//总电压欠压
-		ERR_PACK_OV_II = 0x0008,//总电压过压
-		ERR_CHR_UT_II = 0x0010,//充电温度过低
-		ERR_CHR_OT_II = 0x0020,////充电温度过高
-		ERR_DISCH_UT_II = 0x0040,//放电温度过低
-		ERR_DISCH_OT_II = 0x0080,//放电温度过高
-		ERR_CHR_OC_II = 0x0100,//充电过流
-		ERR_DISCH_OC_II = 0x0200,//放电过流
-		ERR_BMU_COMM_II = 0x0400,//BMU通信异常
-		ERR_INS_LOW_II = 0x0800,//绝缘过低
-		ERR_VOLT_DIFF_II = 0x1000,//压差过大
-		ERR_TEMP_DIFF_II = 0x2000,//温差过大
+	struct CellTempDataSt {
+		int frameNo;//帧编号100~149
+		int temp1;
+		int temp2;
+		int temp3;
+		int temp4;
+		int temp5;
+		int temp6;
+		int temp7;
+		int temp8;
 	};
 
 	//电池组状态信息数据定义
 	struct BatPackStatDataSt {
-		quint8 boardNo;//板卡号
 		float totalVol;//Data0~1：电池组总电压，1LSB=0.1V
 		float totalCur;//Data2~3：电池组总电流，1LSB=0.1A
 		int aveVol;//Data4~5：单体平均电压，1LSB=1mV

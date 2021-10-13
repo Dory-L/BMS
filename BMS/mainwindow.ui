@@ -6,12 +6,12 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1513</width>
-    <height>1248</height>
+    <width>1617</width>
+    <height>1363</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>BMS</string>
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QHBoxLayout" name="horizontalLayout">
@@ -1046,7 +1046,7 @@
                <rect>
                 <x>10</x>
                 <y>70</y>
-                <width>691</width>
+                <width>661</width>
                 <height>821</height>
                </rect>
               </property>
@@ -1063,6 +1063,9 @@
                <number>3</number>
               </property>
               <attribute name="horizontalHeaderVisible">
+               <bool>false</bool>
+              </attribute>
+              <attribute name="horizontalHeaderCascadingSectionResizes">
                <bool>false</bool>
               </attribute>
               <attribute name="horizontalHeaderHighlightSections">
@@ -1227,7 +1230,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1513</width>
+     <width>1617</width>
      <height>37</height>
     </rect>
    </property>
