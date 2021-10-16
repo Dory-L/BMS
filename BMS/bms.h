@@ -30,25 +30,31 @@ namespace BMS {
 		ERR_VOLT_DIFF = 0x1000,//压差过大
 		ERR_TEMP_DIFF = 0x2000,//温差过大
 	};
+
+	//电池和温度总数数据定义
+	struct BatTempNumDataSt {
+		int batNum;
+		int tempNum;
+	};
+
 	//单体电压数据定义
 	struct CellVolDataSt {
 		int frameNo;//帧标号0~99
-		int vol1;
-		int vol2;
-		int vol3;
-		int vol4;
+		int vol[4];//4个电压数据
 	};
 
+	//单体温度数据定义
 	struct CellTempDataSt {
 		int frameNo;//帧编号100~149
-		int temp1;
-		int temp2;
-		int temp3;
-		int temp4;
-		int temp5;
-		int temp6;
-		int temp7;
-		int temp8;
+		int temp[8];//8个温度数据
+
+	};
+
+	//均衡状态帧
+	struct EqualStateDataSt {
+		int frameNo;//帧号
+		bool equalType[4];//均衡类型
+		quint16 equalNo[4];//电池序号
 	};
 
 	//电池组状态信息数据定义
@@ -71,10 +77,10 @@ namespace BMS {
 	struct TempMaxMinDataSt {
 		int tempMax;//Data0：max温度,1LSB=1℃，有40度正向偏置，例如收到数据为41，则实际温度为1度。
 		int tempMin;//Data1：min温度
-		int maxNo;//Data2~3：max温度编号
-		int minNo;//Data4~5：min温度编号
-		int tempDeff;//Data6：温差
-		int aveTemp;//Data7：电池组平均温度
+		int maxNo;//Data2：max温度编号
+		int minNo;//Data3：min温度编号
+		int tempDeff;//Data4：温差
+		int aveTemp;//Data5：电池组平均温度
 	};
 
 	//充放电截止信息数据定义
@@ -98,6 +104,26 @@ namespace BMS {
 		quint16 fetalErr;//一级保护标志
 		quint16 warningErr;//二级报警标志
 		float totalVolThreshold;//总电压阈值1LSB=0.1V，电池组总电压>该阈值，发送一个继电器断开指令。
+	};
+
+	//电池组配置信息
+	struct BatPackConfData1St {
+		int batType;//电芯类型
+		float batDesignCapacity;//电池设计容量，1LSB= 0.1Ah
+		int bmuNum; //电池组BMU数量
+		int cellBatNum;//BMU单体电池数量
+	};
+	struct BatPackConfData2St {
+		int tempSensorNum;//BMU温度传感器数量
+		int endSlaveBatNum;//末端从控电池节数
+		int endSlaveTempNum;//末端从控温度个数
+		float batMaxCapacity;//电池最大容量，1LSB=0.1Ah 
+	};
+	struct BatPackConfData3St {
+		float batCurCapacity;//电池当前容量，1LSB=0.1Ah
+		float batCurLeftCapacity;//电池当前剩余容量，1LSB=0.1Ah
+		int equalStartPressure;//均衡开启压差，1LSB = 1mV
+		int equalClosePressure; //均衡关闭压差，1LSB = 1mV
 	};
 }
 #pragma pack()

@@ -36,7 +36,7 @@ void DataCenter::receiveUdpData()
 		//char temp[length];
 		char* temp = new char[length];
 		qint64 nRec = 0;
-		nRec = udpSocket->read(temp, length);
+		nRec = udpSocket->readDatagram(temp, length);
 		for (int i = 0; i < nRec; i++)
 			dataAnalysisUdp((quint8)temp[i]);//数据解码
 	}
@@ -85,37 +85,57 @@ void DataCenter::dataAnalysisUdp(quint8 data)
 			FunctionNo = receiveBuffer[1];
 
 			/*-------------在此进行数据分发------------*/
-			if (FunctionNo >= 0 || FunctionNo <= 99) //单体电压完整帧
+			if (FunctionNo >= 0x00 && FunctionNo <= 0x63) //单体电压完整帧
 			{
 				receiveCellVol(idAndData, 11);
 			}
-			else if (FunctionNo >= 100 || FunctionNo <= 149)//单体温度完整帧
+			else if (FunctionNo >= 0x64 && FunctionNo <= 0x95)//单体温度完整帧
 			{
 				receiveCellTemp(idAndData, 11);
 			}
-			else if (FunctionNo = 150)//电压最值帧
+			else if (FunctionNo == 0x96)//电压最值帧
 			{
 				receiveVolMaxMin(idAndData, 11);
 			}
-			else if (FunctionNo = 151)//温度最值帧
+			else if (FunctionNo == 0x97)//温度最值帧
 			{
 				receiveTempMaxMin(idAndData, 11);
 			}
-			else if (FunctionNo == 152)//电池组状态信息
+			else if (FunctionNo == 0x98)//电池组状态信息
 			{
 				receiveBatPackStat(idAndData, 11);
 			}
-			else if (FunctionNo = 153)//充放电截止信息帧
+			else if (FunctionNo == 0x99)//充放电截止信息帧
 			{
 				receiveCharDisCutOff(idAndData, 11);
 			}
-			else if (FunctionNo = 154)//SOC、SOH信息帧
+			else if (FunctionNo == 0x9A)//SOC、SOH信息帧
 			{
 				receiveSOCSOH(idAndData, 11);
 			}
-			else if (FunctionNo = 155)//BMS状态帧
+			else if (FunctionNo == 0xA0)
+			{
+				receiveBatPackConfData1(idAndData, 11);
+			}
+			else if (FunctionNo == 0xA1)
+			{
+				receiveBatPackConfData2(idAndData, 11);
+			}
+			else if (FunctionNo == 0xA2)
+			{
+				receiveBatPackConfData3(idAndData, 11);
+			}
+			else if (FunctionNo == 0xB0)//BMS状态帧
 			{
 				receiveBMSState(idAndData, 11);
+			}
+			else if (FunctionNo >= 0xC0 && FunctionNo <= 0xCF)
+			{
+				receiveEqualStateData(idAndData, 11);
+			}
+			else if (FunctionNo == 0xD0)//0xD0,电池和温度总数帧
+			{
+				receiveBatTempNum(idAndData, 11);
 			}
 
 			recFlag &= ~OVER_FLAG;
@@ -184,27 +204,64 @@ void DataCenter::receiveVolMaxMin(quint8* pointer, int count)
 	emit newData(DataType::VolMaxMin);
 }
 
-void DataCenter::receiveTempMaxMin(quint8* pointer, int count)
+void DataCenter::receiveBatTempNum(quint8* pointer, int count)//读取电池和温度总数
 {
-	quint16 temp;
-	
-	tempMaxMinData.tempMax = pointer[3] - 40;//max温度,有40度正向偏置
-	tempMaxMinData.tempMin = pointer[4] - 40;//min温度,有40度正向偏置
+	qint16 temp;
+	temp = (qint16)pointer[3];
+	temp <<= 8;
+	temp |= (quint16)pointer[4];
+	batTempNumData.batNum = temp;//电池总数
 
 	temp = (qint16)pointer[5];
 	temp <<= 8;
 	temp |= (quint16)pointer[6];
-	tempMaxMinData.maxNo = temp;//max温度编号
+	batTempNumData.tempNum = temp;//温度总数
+
+	emit newData(DataType::BatTempNum);
+}
+
+void DataCenter::receiveTempMaxMin(quint8* pointer, int count)
+{
+	tempMaxMinData.tempMax = pointer[3] - 40;//max温度,有40度正向偏置
+	tempMaxMinData.tempMin = pointer[4] - 40;//min温度,有40度正向偏置
+	tempMaxMinData.maxNo = pointer[5];//max温度编号
+	tempMaxMinData.minNo = pointer[6];//min温度编号
+	tempMaxMinData.tempDeff = pointer[7]; //温差
+	tempMaxMinData.aveTemp = pointer[8] - 40;//电池组平均温度
+
+	emit newData(DataType::TempMaxMin);
+}
+
+void DataCenter::receiveEqualStateData(quint8* pointer, int count)//均衡状态
+{
+	equalStateData.frameNo = pointer[1] - 0xC0;
+
+	quint16 temp;
+	temp = (qint16)pointer[3];
+	temp <<= 8;
+	temp |= (quint16)pointer[4];
+	equalStateData.equalType[0] = temp & 0x7F;
+	equalStateData.equalNo[0] = temp & 0x80;
+
+	temp = (qint16)pointer[5];
+	temp <<= 8;
+	temp |= (quint16)pointer[6];
+	equalStateData.equalType[1] = temp & 0x7F;
+	equalStateData.equalNo[1] = temp & 0x80;
 
 	temp = (qint16)pointer[7];
 	temp <<= 8;
 	temp |= (quint16)pointer[8];
-	tempMaxMinData.minNo = temp;//min温度编号
+	equalStateData.equalType[2] = temp & 0x7F;
+	equalStateData.equalNo[2] = temp & 0x80;
 
-	tempMaxMinData.tempDeff = pointer[9]; //温差
-	tempMaxMinData.aveTemp = pointer[10];//电池组平均温度
+	temp = (qint16)pointer[9];
+	temp <<= 8;
+	temp |= (quint16)pointer[10];
+	equalStateData.equalType[3] = temp & 0x7F;
+	equalStateData.equalNo[3] = temp & 0x80;
 
-	emit newData(DataType::TempMaxMin);
+	emit newData(DataType::EqualState);
 }
 
 void DataCenter::receiveCharDisCutOff(quint8* pointer, int count)
@@ -282,38 +339,119 @@ void DataCenter::receiveCellVol(quint8* pointer, int count)//读取单体电压数据
 	temp = (qint16)pointer[3];
 	temp <<= 8;
 	temp |= (quint16)pointer[4];
-	cellVolData.vol1 = temp;
+	cellVolData.vol[0] = temp;
 
 	temp = (qint16)pointer[5];
 	temp <<= 8;
 	temp |= (quint16)pointer[6];
-	cellVolData.vol2 = temp;
+	cellVolData.vol[1] = temp;
 
 	temp = (qint16)pointer[7];
 	temp <<= 8;
 	temp |= (quint16)pointer[8];
-	cellVolData.vol3 = temp;
+	cellVolData.vol[2] = temp;
 
 	temp = (qint16)pointer[9];
 	temp <<= 8;
 	temp |= (quint16)pointer[10];
-	cellVolData.vol4 = temp;
+	cellVolData.vol[3] = temp;
 
 	emit newData(DataType::CellVol);
 }
 
 void DataCenter::receiveCellTemp(quint8* pointer, int count)//读取单体电压数据
 {
-	cellTempData.frameNo = pointer[1];
-	cellTempData.temp1 = pointer[3];
-	cellTempData.temp2 = pointer[4];
-	cellTempData.temp3 = pointer[5];
-	cellTempData.temp4 = pointer[6];
-	cellTempData.temp5 = pointer[7];
-	cellTempData.temp6 = pointer[8];
-	cellTempData.temp7 = pointer[9];
-	cellTempData.temp8 = pointer[10];
+	cellTempData.frameNo = pointer[1] = 100;
+	cellTempData.temp[0] = pointer[3];
+	cellTempData.temp[1] = pointer[4];
+	cellTempData.temp[2] = pointer[5];
+	cellTempData.temp[3] = pointer[6];
+	cellTempData.temp[4] = pointer[7];
+	cellTempData.temp[5] = pointer[8];
+	cellTempData.temp[6] = pointer[9];
+	cellTempData.temp[7] = pointer[10];
 	emit newData(DataType::CellTemp);
+}
+
+//读取电池组配置信息1
+void DataCenter::receiveBatPackConfData1(quint8* pointer, int count)
+{
+	qint16 temp;
+	temp = (qint16)pointer[3];
+	temp <<= 8;
+	temp |= (quint16)pointer[4];
+	batPackConfData1.batType = temp;
+
+	temp = (qint16)pointer[5];
+	temp <<= 8;
+	temp |= (quint16)pointer[6];
+	batPackConfData1.batDesignCapacity = (float)temp / 10;
+
+	temp = (qint16)pointer[7];
+	temp <<= 8;
+	temp |= (quint16)pointer[8];
+	batPackConfData1.bmuNum = temp;
+
+	temp = (qint16)pointer[9];
+	temp <<= 8;
+	temp |= (quint16)pointer[10];
+	batPackConfData1.cellBatNum = temp;
+
+	emit newData(DataType::BatPackConf1);
+}
+
+//读取电池组配置信息2
+void DataCenter::receiveBatPackConfData2(quint8* pointer, int count)
+{
+	qint16 temp;
+	temp = (qint16)pointer[3];
+	temp <<= 8;
+	temp |= (quint16)pointer[4];
+	batPackConfData2.tempSensorNum = temp;
+
+	temp = (qint16)pointer[5];
+	temp <<= 8;
+	temp |= (quint16)pointer[6];
+	batPackConfData2.endSlaveBatNum = temp;
+
+	temp = (qint16)pointer[7];
+	temp <<= 8;
+	temp |= (quint16)pointer[8];
+	batPackConfData2.endSlaveTempNum = temp;
+
+	temp = (qint16)pointer[9];
+	temp <<= 8;
+	temp |= (quint16)pointer[10];
+	batPackConfData2.batMaxCapacity = (float)temp / 10;
+
+	emit newData(DataType::BatPackConf2);
+}
+
+//读取电池组配置信息3
+void DataCenter::receiveBatPackConfData3(quint8* pointer, int count)
+{
+	qint16 temp;
+	temp = (qint16)pointer[3];
+	temp <<= 8;
+	temp |= (quint16)pointer[4];
+	batPackConfData3.batCurCapacity = (float)temp / 10;
+
+	temp = (qint16)pointer[5];
+	temp <<= 8;
+	temp |= (quint16)pointer[6];
+	batPackConfData3.batCurLeftCapacity = (float)temp / 10;
+
+	temp = (qint16)pointer[7];
+	temp <<= 8;
+	temp |= (quint16)pointer[8];
+	batPackConfData3.equalStartPressure = (float)temp / 10;
+
+	temp = (qint16)pointer[9];
+	temp <<= 8;
+	temp |= (quint16)pointer[10];
+	batPackConfData3.equalClosePressure = (float)temp / 10;
+
+	emit newData(DataType::BatPackConf3);
 }
 
 void DataCenter::udpStateChanged(QAbstractSocket::SocketState socketState)
