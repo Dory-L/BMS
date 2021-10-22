@@ -100,10 +100,9 @@ namespace BMS {
 	//BMS状态数据定义
 	struct BMSStateDataSt {
 		quint8 batState;//电池状态，静置IDLE_STATE-0；充电CHARGE_STATE-1；放电DISCHARGE_STATE-2
-		quint8 relayState;//接触器的继电器状态，1-闭合；0-断开
+		quint16 relayState;//接触器的继电器状态，1-闭合；0-断开
 		quint16 fetalErr;//一级保护标志
 		quint16 warningErr;//二级报警标志
-		float totalVolThreshold;//总电压阈值1LSB=0.1V，电池组总电压>该阈值，发送一个继电器断开指令。
 	};
 
 	//电池组配置信息
@@ -122,8 +121,97 @@ namespace BMS {
 	struct BatPackConfData3St {
 		float batCurCapacity;//电池当前容量，1LSB=0.1Ah
 		float batCurLeftCapacity;//电池当前剩余容量，1LSB=0.1Ah
-		int equalStartPressure;//均衡开启压差，1LSB = 1mV
-		int equalClosePressure; //均衡关闭压差，1LSB = 1mV
+		int tempBMUNum;//温度所需BMU数量，1LSB=1
+		float equalStartPressure; //均衡开启压差，1LSB=0.1%
+	};
+
+	//报警参数
+	struct BaojingParaData1St {
+		int cellUV;//Data0~1：单体欠压，1LSB=1mV
+		int cellOV;//Data2~3：单体过压，1LSB=1mV
+		float packUV;//Data4~5：总压欠压，1LSB=0.1V
+		float packOV;//Data6~7：总压过压，1LSB=0.1V
+	};
+	struct BaojingParaData2St {
+		int charUT;//Data0~1：充电温度过低，1LSB=1℃，有40度正向偏置
+		int charOT;//Data2~3：充电温度过高，1LSB=1℃，有40度正向偏置
+		int dischUT;//Data4~5：放电温度过低，1LSB=1℃，有40度正向偏置
+		int dischOT;//Data6~7：放电温度过高，1LSB=1℃，有40度正向偏置
+	};
+	struct BaojingParaData3St {
+		float charOC;//Data0~1：充电过流，1LSB=0.1A
+		float dischOC;//Data2~3：放电过流，1LSB=0.1A
+		int commOT;//Data4~5：从控通信超时时间，1LSB=1s
+		int insLow;//Data6~7：绝缘阻值过低，1LSB=1 Ω/V
+	};
+	struct BaojingParaData4St {
+		int volDiff;//Data0~1：压差过大，1LSB=1mV 
+		int tempDiff;//Data2~3：温差过大，1LSB=1mV
+	};
+
+	//保护参数
+	struct BaohuParaData1St {
+		int cellUV;//Data0~1：单体欠压，1LSB=1mV
+		int cellOV;//Data2~3：单体过压，1LSB=1mV
+		float packUV;//Data4~5：总压欠压，1LSB=0.1V
+		float packOV;//Data6~7：总压过压，1LSB=0.1V
+	};
+	struct BaohuParaData2St {
+		int charUT;//Data0~1：充电温度过低，1LSB=1℃，有40度正向偏置
+		int charOT;//Data2~3：充电温度过高，1LSB=1℃，有40度正向偏置
+		int dischUT;//Data4~5：放电温度过低，1LSB=1℃，有40度正向偏置
+		int dischOT;//Data6~7：放电温度过高，1LSB=1℃，有40度正向偏置
+	};
+	struct BaohuParaData3St {
+		float charOC;//Data0~1：充电过流，1LSB=0.1A
+		float dischOC;//Data2~3：放电过流，1LSB=0.1A
+		int commOT;//Data4~5：从控通信超时时间，1LSB=1s
+		int insLow;//Data6~7：绝缘阻值过低，1LSB=1 Ω/V
+	};
+	struct BaohuParaData4St {
+		int volDiff;//Data0~1：压差过大，1LSB=1mV 
+		int tempDiff;//Data2~3：温差过大，1LSB=1mV
+	};
+
+	//恢复参数
+	struct HuifuParaData1St {
+		int cellUV;//Data0~1：单体欠压，1LSB=1mV
+		int cellOV;//Data2~3：单体过压，1LSB=1mV
+		float packUV;//Data4~5：总压欠压，1LSB=0.1V
+		float packOV;//Data6~7：总压过压，1LSB=0.1V
+	};
+	struct HuifuParaData2St {
+		int charUT;//Data0~1：充电温度过低，1LSB=1℃，有40度正向偏置
+		int charOT;//Data2~3：充电温度过高，1LSB=1℃，有40度正向偏置
+		int dischUT;//Data4~5：放电温度过低，1LSB=1℃，有40度正向偏置
+		int dischOT;//Data6~7：放电温度过高，1LSB=1℃，有40度正向偏置
+	};
+	struct HuifuParaData3St {
+		float charOC;//Data0~1：充电过流，1LSB=0.1A
+		float dischOC;//Data2~3：放电过流，1LSB=0.1A
+		int commOT;//Data4~5：从控通信超时时间，1LSB=1s
+		int insLow;//Data6~7：绝缘阻值过低，1LSB=1 Ω/V
+	};
+	struct HuifuParaData4St {
+		int volDiff;//Data0~1：压差过大，1LSB=1mV 
+		int tempDiff;//Data2~3：温差过大，1LSB=1mV
+	};
+
+	//电压校准参数
+	struct VolCalDataSt {
+		qint16 offSet;
+		float gain;
+	};
+
+	//电流校准参数
+	struct CurCalDataSt {
+		qint16 offSet; //Data0~1：电压零点偏移，1LSB = 1mV
+		float gain;//Data2~3：电压增益，1LSB = 0.001
+	};
+
+	//均衡功能状态信息
+	struct EqualFunStateDataSt {
+		int state;
 	};
 }
 #pragma pack()

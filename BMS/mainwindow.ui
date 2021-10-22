@@ -14,17 +14,17 @@
    <string>BMS</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <layout class="QGridLayout" name="gridLayout_5">
-    <item row="0" column="0">
+   <layout class="QVBoxLayout" name="verticalLayout_5">
+    <item>
      <widget class="QTabWidget" name="tabWidget">
       <property name="enabled">
        <bool>true</bool>
       </property>
       <property name="tabShape">
-       <enum>QTabWidget::Triangular</enum>
+       <enum>QTabWidget::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>3</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -460,32 +460,28 @@
             <widget class="QWidget" name="widget_4" native="true">
              <layout class="QHBoxLayout" name="horizontalLayout_2">
               <item>
-               <spacer name="horizontalSpacer_2">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeType">
-                 <enum>QSizePolicy::Maximum</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>60</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-              <item>
-               <widget class="QPushButton" name="pushButton">
-                <property name="text">
-                 <string>闭合</string>
-                </property>
+               <widget class="QComboBox" name="comboBox_2">
+                <item>
+                 <property name="text">
+                  <string>断开</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>闭合</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>强制闭合</string>
+                 </property>
+                </item>
                </widget>
               </item>
               <item>
-               <widget class="QCheckBox" name="checkBox">
+               <widget class="QPushButton" name="confirmBtn">
                 <property name="text">
-                 <string>强制</string>
+                 <string>确认</string>
                 </property>
                </widget>
               </item>
@@ -511,7 +507,7 @@
            <item row="0" column="1">
             <widget class="QLineEdit" name="lineEdit_batStatet">
              <property name="sizePolicy">
-              <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                <horstretch>2</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
@@ -534,7 +530,7 @@
            <item row="1" column="1">
             <widget class="QLineEdit" name="lineEdit_relayState">
              <property name="sizePolicy">
-              <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                <horstretch>2</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
@@ -943,7 +939,7 @@
                  <number>1</number>
                 </property>
                 <property name="columnCount">
-                 <number>3</number>
+                 <number>2</number>
                 </property>
                 <attribute name="horizontalHeaderStretchLastSection">
                  <bool>false</bool>
@@ -952,7 +948,6 @@
                  <bool>false</bool>
                 </attribute>
                 <row/>
-                <column/>
                 <column/>
                 <column/>
                </widget>
@@ -997,7 +992,32 @@
              </layout>
             </widget>
            </item>
-           <item row="1" column="0" colspan="2">
+           <item row="0" column="2">
+            <widget class="QGroupBox" name="groupBox_junHeng">
+             <property name="title">
+              <string>均衡状态</string>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_4">
+              <item>
+               <widget class="QTableWidget" name="tableWidget_3">
+                <property name="rowCount">
+                 <number>1</number>
+                </property>
+                <property name="columnCount">
+                 <number>2</number>
+                </property>
+                <attribute name="verticalHeaderVisible">
+                 <bool>false</bool>
+                </attribute>
+                <row/>
+                <column/>
+                <column/>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item row="1" column="0" colspan="3">
             <widget class="QWidget" name="widget" native="true">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -1099,17 +1119,665 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="tab_3">
-       <attribute name="title">
-        <string>动态曲线</string>
-       </attribute>
-      </widget>
       <widget class="QWidget" name="tab_4">
        <attribute name="title">
         <string>参数配置</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_14">
-        <item row="3" column="0">
+        <item row="0" column="0">
+         <widget class="QGroupBox" name="groupBox_6">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="title">
+           <string>电压校准</string>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_5">
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_160">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="layoutDirection">
+              <enum>Qt::LeftToRight</enum>
+             </property>
+             <property name="text">
+              <string>AD值</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="2">
+            <widget class="QLabel" name="label_161">
+             <property name="text">
+              <string>输入真值</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLineEdit" name="lineEdit_1">
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QLabel" name="label_163">
+             <property name="text">
+              <string>V</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="2">
+            <widget class="QLineEdit" name="lineEdit_3">
+             <property name="enabled">
+              <bool>true</bool>
+             </property>
+             <property name="autoFillBackground">
+              <bool>false</bool>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+             <property name="readOnly">
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="3">
+            <widget class="QLabel" name="label_165">
+             <property name="text">
+              <string>V</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="4">
+            <widget class="QPushButton" name="volCalBtn">
+             <property name="text">
+              <string>校准参数计算</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLineEdit" name="lineEdit_2"/>
+           </item>
+           <item row="2" column="1">
+            <widget class="QLabel" name="label_164">
+             <property name="text">
+              <string>V</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="2">
+            <widget class="QLineEdit" name="lineEdit_4"/>
+           </item>
+           <item row="2" column="3">
+            <widget class="QLabel" name="label_166">
+             <property name="text">
+              <string>V</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0">
+            <widget class="QLabel" name="label_157">
+             <property name="text">
+              <string>零点偏移校准参数：</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="2">
+            <widget class="QLineEdit" name="lineEdit_5">
+             <property name="text">
+              <string/>
+             </property>
+             <property name="readOnly">
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="4">
+            <widget class="QPushButton" name="readVolCalBtn">
+             <property name="text">
+              <string>读取电校准参数</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="0">
+            <widget class="QLabel" name="label_159">
+             <property name="text">
+              <string>增益校准参数：</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="2">
+            <widget class="QLineEdit" name="lineEdit_6">
+             <property name="readOnly">
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="4">
+            <widget class="QPushButton" name="saveVolCalBtn">
+             <property name="text">
+              <string>保存电压校准参数</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QGroupBox" name="groupBox_7">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="title">
+           <string>电流校准</string>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_8">
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_169">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="layoutDirection">
+              <enum>Qt::LeftToRight</enum>
+             </property>
+             <property name="text">
+              <string>AD值</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="2">
+            <widget class="QLabel" name="label_171">
+             <property name="text">
+              <string>输入真值</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="2">
+            <widget class="QLineEdit" name="lineEdit_9">
+             <property name="enabled">
+              <bool>true</bool>
+             </property>
+             <property name="autoFillBackground">
+              <bool>false</bool>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+             <property name="readOnly">
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QLabel" name="label_170">
+             <property name="text">
+              <string>A</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLineEdit" name="lineEdit_8"/>
+           </item>
+           <item row="2" column="1">
+            <widget class="QLabel" name="label_174">
+             <property name="text">
+              <string>A</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="2">
+            <widget class="QLineEdit" name="lineEdit_10"/>
+           </item>
+           <item row="2" column="3">
+            <widget class="QLabel" name="label_175">
+             <property name="text">
+              <string>A</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="3">
+            <widget class="QLabel" name="label_167">
+             <property name="text">
+              <string>A</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="4">
+            <widget class="QPushButton" name="curCalBtn">
+             <property name="text">
+              <string>校准参数计算</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLineEdit" name="lineEdit_7">
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="4">
+            <widget class="QPushButton" name="readCurCalBtn">
+             <property name="text">
+              <string>读取电流校准参数</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="2">
+            <widget class="QLineEdit" name="lineEdit_12">
+             <property name="readOnly">
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0">
+            <widget class="QLabel" name="label_172">
+             <property name="text">
+              <string>零点偏移校准参数：</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="2">
+            <widget class="QLineEdit" name="lineEdit_11">
+             <property name="text">
+              <string/>
+             </property>
+             <property name="readOnly">
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="4">
+            <widget class="QPushButton" name="saveCurCalBtn">
+             <property name="text">
+              <string>保存电流校准参数</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="0">
+            <widget class="QLabel" name="label_173">
+             <property name="text">
+              <string>增益校准参数：</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item row="1" column="0" colspan="2">
+         <widget class="QGroupBox" name="groupBox_8">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="title">
+           <string>电池组配置信息</string>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_10">
+           <item row="0" column="1">
+            <widget class="QComboBox" name="comboBox">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <item>
+              <property name="text">
+               <string>磷酸铁锂电池</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>三元锂电池</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>其他</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+           <item row="2" column="2">
+            <widget class="QLabel" name="label_182">
+             <property name="text">
+              <string>电池当前总容量(Ah)：</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QLineEdit" name="lineEdit_16">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>16777215</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="5">
+            <widget class="QLineEdit" name="lineEdit_18">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>16777215</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="6">
+            <widget class="QLabel" name="label_193">
+             <property name="text">
+              <string>均衡开启压差(%)：</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="7">
+            <widget class="QPushButton" name="saveBatPackBtn">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>保存</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="4">
+            <widget class="QLabel" name="label_195">
+             <property name="text">
+              <string>BMU数量：</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="2">
+            <widget class="QLabel" name="label_180">
+             <property name="text">
+              <string>电池设计容量(Ah)：</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="6">
+            <widget class="QLabel" name="label_179">
+             <property name="text">
+              <string>温度连接BMU数量：</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="2">
+            <widget class="QLabel" name="label_191">
+             <property name="text">
+              <string>末端从控电池节数：</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="4">
+            <widget class="QLabel" name="label_194">
+             <property name="text">
+              <string>末端从控温度个数：</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="7">
+            <widget class="QLineEdit" name="lineEdit_19">
+             <property name="enabled">
+              <bool>true</bool>
+             </property>
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>16777215</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="label_181">
+             <property name="text">
+              <string>BMU温度传感器数量：</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="5">
+            <widget class="QLineEdit" name="lineEdit_14">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>16777215</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="label_178">
+             <property name="text">
+              <string>电池最大容量(Ah)：</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="3">
+            <widget class="QLineEdit" name="lineEdit_21">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>16777215</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="3">
+            <widget class="QLineEdit" name="lineEdit_13">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>16777215</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="4">
+            <widget class="QLabel" name="label_192">
+             <property name="text">
+              <string>电池当前剩余容量(Ah)：</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="5">
+            <widget class="QLineEdit" name="lineEdit_22">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>16777215</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QLineEdit" name="lineEdit_20">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>16777215</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="6">
+            <widget class="QLabel" name="label_177">
+             <property name="text">
+              <string>BMU单体电池数量：</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="7">
+            <widget class="QLineEdit" name="lineEdit_23">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>16777215</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_176">
+             <property name="text">
+              <string>电芯类型：</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="3">
+            <widget class="QLineEdit" name="lineEdit_17">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>16777215</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="7">
+            <widget class="QLineEdit" name="lineEdit_15">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>16777215</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="6">
+            <widget class="QPushButton" name="readBatPackBtn">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>读取</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item row="2" column="0" colspan="2">
          <widget class="QTabWidget" name="tabWidget_2">
           <property name="currentIndex">
            <number>0</number>
@@ -1122,7 +1790,7 @@
             <item row="0" column="0">
              <widget class="QLabel" name="label_196">
               <property name="text">
-               <string>单体欠压(V)：</string>
+               <string>单体欠压(mV)：</string>
               </property>
              </widget>
             </item>
@@ -1139,7 +1807,7 @@
             <item row="0" column="2">
              <widget class="QLabel" name="label_200">
               <property name="text">
-               <string>单体过压(V)：</string>
+               <string>单体过压(mV)：</string>
               </property>
              </widget>
             </item>
@@ -1265,7 +1933,7 @@
                </size>
               </property>
               <property name="text">
-               <string>放电温度过低(℃)：</string>
+               <string>放电温度过高(℃)：</string>
               </property>
              </widget>
             </item>
@@ -1400,7 +2068,7 @@
              </widget>
             </item>
             <item row="3" column="6">
-             <widget class="QPushButton" name="pushButton_14">
+             <widget class="QPushButton" name="readYuZhiBtn">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
                 <horstretch>0</horstretch>
@@ -1419,7 +2087,7 @@
              </widget>
             </item>
             <item row="3" column="7">
-             <widget class="QPushButton" name="pushButton_13">
+             <widget class="QPushButton" name="saveYuZhiBtn">
               <property name="maximumSize">
                <size>
                 <width>16777215</width>
@@ -1441,12 +2109,12 @@
             <item row="0" column="0">
              <widget class="QLabel" name="label_235">
               <property name="text">
-               <string>单体欠压(V)：</string>
+               <string>单体欠压(mV)：</string>
               </property>
              </widget>
             </item>
             <item row="0" column="1">
-             <widget class="QLineEdit" name="lineEdit_102">
+             <widget class="QLineEdit" name="lineEdit_38">
               <property name="maximumSize">
                <size>
                 <width>16777215</width>
@@ -1458,12 +2126,12 @@
             <item row="0" column="2">
              <widget class="QLabel" name="label_230">
               <property name="text">
-               <string>单体过压(V)：</string>
+               <string>单体过压(mV)：</string>
               </property>
              </widget>
             </item>
             <item row="0" column="3">
-             <widget class="QLineEdit" name="lineEdit_109">
+             <widget class="QLineEdit" name="lineEdit_39">
               <property name="maximumSize">
                <size>
                 <width>16777215</width>
@@ -1480,7 +2148,7 @@
              </widget>
             </item>
             <item row="0" column="5">
-             <widget class="QLineEdit" name="lineEdit_107">
+             <widget class="QLineEdit" name="lineEdit_40">
               <property name="maximumSize">
                <size>
                 <width>16777215</width>
@@ -1503,7 +2171,7 @@
              </widget>
             </item>
             <item row="0" column="7">
-             <widget class="QLineEdit" name="lineEdit_101">
+             <widget class="QLineEdit" name="lineEdit_41">
               <property name="maximumSize">
                <size>
                 <width>16777215</width>
@@ -1526,7 +2194,7 @@
              </widget>
             </item>
             <item row="1" column="1">
-             <widget class="QLineEdit" name="lineEdit_92">
+             <widget class="QLineEdit" name="lineEdit_42">
               <property name="maximumSize">
                <size>
                 <width>16777215</width>
@@ -1549,7 +2217,7 @@
              </widget>
             </item>
             <item row="1" column="3">
-             <widget class="QLineEdit" name="lineEdit_105">
+             <widget class="QLineEdit" name="lineEdit_43">
               <property name="maximumSize">
                <size>
                 <width>16777215</width>
@@ -1566,7 +2234,7 @@
              </widget>
             </item>
             <item row="1" column="5">
-             <widget class="QLineEdit" name="lineEdit_103">
+             <widget class="QLineEdit" name="lineEdit_44">
               <property name="maximumSize">
                <size>
                 <width>16777215</width>
@@ -1584,12 +2252,12 @@
                </size>
               </property>
               <property name="text">
-               <string>放电温度过低(℃)：</string>
+               <string>放电温度过高(℃)：</string>
               </property>
              </widget>
             </item>
             <item row="1" column="7">
-             <widget class="QLineEdit" name="lineEdit_110">
+             <widget class="QLineEdit" name="lineEdit_45">
               <property name="maximumSize">
                <size>
                 <width>16777215</width>
@@ -1606,7 +2274,7 @@
              </widget>
             </item>
             <item row="2" column="1">
-             <widget class="QLineEdit" name="lineEdit_100">
+             <widget class="QLineEdit" name="lineEdit_46">
               <property name="maximumSize">
                <size>
                 <width>16777215</width>
@@ -1623,7 +2291,7 @@
              </widget>
             </item>
             <item row="2" column="3">
-             <widget class="QLineEdit" name="lineEdit_104">
+             <widget class="QLineEdit" name="lineEdit_47">
               <property name="maximumSize">
                <size>
                 <width>16777215</width>
@@ -1646,7 +2314,7 @@
              </widget>
             </item>
             <item row="2" column="5">
-             <widget class="QLineEdit" name="lineEdit_99">
+             <widget class="QLineEdit" name="lineEdit_48">
               <property name="maximumSize">
                <size>
                 <width>16777215</width>
@@ -1675,7 +2343,7 @@
              </widget>
             </item>
             <item row="2" column="7">
-             <widget class="QLineEdit" name="lineEdit_108">
+             <widget class="QLineEdit" name="lineEdit_49">
               <property name="maximumSize">
                <size>
                 <width>16777215</width>
@@ -1692,7 +2360,7 @@
              </widget>
             </item>
             <item row="3" column="1">
-             <widget class="QLineEdit" name="lineEdit_91">
+             <widget class="QLineEdit" name="lineEdit_50">
               <property name="maximumSize">
                <size>
                 <width>16777215</width>
@@ -1709,7 +2377,7 @@
              </widget>
             </item>
             <item row="3" column="3">
-             <widget class="QLineEdit" name="lineEdit_106">
+             <widget class="QLineEdit" name="lineEdit_51">
               <property name="maximumSize">
                <size>
                 <width>16777215</width>
@@ -1757,15 +2425,8 @@
             <string>恢复阈值</string>
            </attribute>
            <layout class="QGridLayout" name="gridLayout_13">
-            <item row="0" column="0">
-             <widget class="QLabel" name="label_249">
-              <property name="text">
-               <string>单体欠压(V)：</string>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="1">
-             <widget class="QLineEdit" name="lineEdit_116">
+            <item row="2" column="1">
+             <widget class="QLineEdit" name="lineEdit_60">
               <property name="maximumSize">
                <size>
                 <width>16777215</width>
@@ -1774,32 +2435,18 @@
               </property>
              </widget>
             </item>
-            <item row="0" column="2">
-             <widget class="QLabel" name="label_244">
-              <property name="text">
-               <string>单体过压(V)：</string>
+            <item row="2" column="3">
+             <widget class="QLineEdit" name="lineEdit_61">
+              <property name="maximumSize">
+               <size>
+                <width>16777215</width>
+                <height>16777215</height>
+               </size>
               </property>
              </widget>
             </item>
             <item row="0" column="3">
-             <widget class="QLineEdit" name="lineEdit_123">
-              <property name="maximumSize">
-               <size>
-                <width>16777215</width>
-                <height>16777215</height>
-               </size>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="4">
-             <widget class="QLabel" name="label_238">
-              <property name="text">
-               <string>总压欠压(V)：</string>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="5">
-             <widget class="QLineEdit" name="lineEdit_121">
+             <widget class="QLineEdit" name="lineEdit_53">
               <property name="maximumSize">
                <size>
                 <width>16777215</width>
@@ -1821,128 +2468,8 @@
               </property>
              </widget>
             </item>
-            <item row="0" column="7">
-             <widget class="QLineEdit" name="lineEdit_115">
-              <property name="maximumSize">
-               <size>
-                <width>16777215</width>
-                <height>16777215</height>
-               </size>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="0">
-             <widget class="QLabel" name="label_245">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="text">
-               <string>充电温度过低(℃)：</string>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="1">
-             <widget class="QLineEdit" name="lineEdit_112">
-              <property name="maximumSize">
-               <size>
-                <width>16777215</width>
-                <height>16777215</height>
-               </size>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="2">
-             <widget class="QLabel" name="label_242">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="text">
-               <string>充电温度过高(℃)：</string>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="3">
-             <widget class="QLineEdit" name="lineEdit_119">
-              <property name="maximumSize">
-               <size>
-                <width>16777215</width>
-                <height>16777215</height>
-               </size>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="4">
-             <widget class="QLabel" name="label_251">
-              <property name="text">
-               <string>放电温度过低(℃)：</string>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="5">
-             <widget class="QLineEdit" name="lineEdit_117">
-              <property name="maximumSize">
-               <size>
-                <width>16777215</width>
-                <height>16777215</height>
-               </size>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="6">
-             <widget class="QLabel" name="label_240">
-              <property name="maximumSize">
-               <size>
-                <width>16777215</width>
-                <height>16777215</height>
-               </size>
-              </property>
-              <property name="text">
-               <string>放电温度过低(℃)：</string>
-              </property>
-             </widget>
-            </item>
             <item row="1" column="7">
-             <widget class="QLineEdit" name="lineEdit_124">
-              <property name="maximumSize">
-               <size>
-                <width>16777215</width>
-                <height>16777215</height>
-               </size>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="0">
-             <widget class="QLabel" name="label_248">
-              <property name="text">
-               <string>充电过流(A)：</string>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="1">
-             <widget class="QLineEdit" name="lineEdit_114">
-              <property name="maximumSize">
-               <size>
-                <width>16777215</width>
-                <height>16777215</height>
-               </size>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="2">
-             <widget class="QLabel" name="label_250">
-              <property name="text">
-               <string>放电过流(A)：</string>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="3">
-             <widget class="QLineEdit" name="lineEdit_118">
+             <widget class="QLineEdit" name="lineEdit_59">
               <property name="maximumSize">
                <size>
                 <width>16777215</width>
@@ -1964,8 +2491,149 @@
               </property>
              </widget>
             </item>
-            <item row="2" column="5">
-             <widget class="QLineEdit" name="lineEdit_113">
+            <item row="0" column="5">
+             <widget class="QLineEdit" name="lineEdit_54">
+              <property name="maximumSize">
+               <size>
+                <width>16777215</width>
+                <height>16777215</height>
+               </size>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="4">
+             <widget class="QLabel" name="label_238">
+              <property name="text">
+               <string>总压欠压(V)：</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QLineEdit" name="lineEdit_56">
+              <property name="maximumSize">
+               <size>
+                <width>16777215</width>
+                <height>16777215</height>
+               </size>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QLineEdit" name="lineEdit_52">
+              <property name="maximumSize">
+               <size>
+                <width>16777215</width>
+                <height>16777215</height>
+               </size>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="3">
+             <widget class="QLineEdit" name="lineEdit_57">
+              <property name="maximumSize">
+               <size>
+                <width>16777215</width>
+                <height>16777215</height>
+               </size>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="2">
+             <widget class="QLabel" name="label_242">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>充电温度过高(℃)：</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="5">
+             <widget class="QLineEdit" name="lineEdit_58">
+              <property name="maximumSize">
+               <size>
+                <width>16777215</width>
+                <height>16777215</height>
+               </size>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="0">
+             <widget class="QLabel" name="label_249">
+              <property name="text">
+               <string>单体欠压(mV)：</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="7">
+             <widget class="QLineEdit" name="lineEdit_55">
+              <property name="maximumSize">
+               <size>
+                <width>16777215</width>
+                <height>16777215</height>
+               </size>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="6">
+             <widget class="QLabel" name="label_240">
+              <property name="maximumSize">
+               <size>
+                <width>16777215</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>放电温度过高(℃)：</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0">
+             <widget class="QLabel" name="label_248">
+              <property name="text">
+               <string>充电过流(A)：</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="2">
+             <widget class="QLabel" name="label_250">
+              <property name="text">
+               <string>放电过流(A)：</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="2">
+             <widget class="QLabel" name="label_244">
+              <property name="text">
+               <string>单体过压(mV)：</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="label_245">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>充电温度过低(℃)：</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="4">
+             <widget class="QLabel" name="label_251">
+              <property name="text">
+               <string>放电温度过低(℃)：</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="7">
+             <widget class="QLineEdit" name="lineEdit_63">
               <property name="maximumSize">
                <size>
                 <width>16777215</width>
@@ -1993,8 +2661,8 @@
               </property>
              </widget>
             </item>
-            <item row="2" column="7">
-             <widget class="QLineEdit" name="lineEdit_122">
+            <item row="2" column="5">
+             <widget class="QLineEdit" name="lineEdit_62">
               <property name="maximumSize">
                <size>
                 <width>16777215</width>
@@ -2010,8 +2678,15 @@
               </property>
              </widget>
             </item>
+            <item row="3" column="2">
+             <widget class="QLabel" name="label_246">
+              <property name="text">
+               <string>温差过大(℃)：</string>
+              </property>
+             </widget>
+            </item>
             <item row="3" column="1">
-             <widget class="QLineEdit" name="lineEdit_111">
+             <widget class="QLineEdit" name="lineEdit_64">
               <property name="maximumSize">
                <size>
                 <width>16777215</width>
@@ -2020,15 +2695,21 @@
               </property>
              </widget>
             </item>
-            <item row="3" column="2">
-             <widget class="QLabel" name="label_246">
+            <item row="3" column="7">
+             <widget class="QPushButton" name="pushButton_19">
+              <property name="maximumSize">
+               <size>
+                <width>16777215</width>
+                <height>16777215</height>
+               </size>
+              </property>
               <property name="text">
-               <string>温差过大(℃)：</string>
+               <string>保存</string>
               </property>
              </widget>
             </item>
             <item row="3" column="3">
-             <widget class="QLineEdit" name="lineEdit_120">
+             <widget class="QLineEdit" name="lineEdit_65">
               <property name="maximumSize">
                <size>
                 <width>16777215</width>
@@ -2056,730 +2737,94 @@
               </property>
              </widget>
             </item>
-            <item row="3" column="7">
-             <widget class="QPushButton" name="pushButton_19">
-              <property name="maximumSize">
-               <size>
-                <width>16777215</width>
-                <height>16777215</height>
-               </size>
-              </property>
-              <property name="text">
-               <string>保存</string>
-              </property>
-             </widget>
-            </item>
            </layout>
           </widget>
          </widget>
         </item>
-        <item row="2" column="0">
-         <widget class="QGroupBox" name="groupBox_8">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
+        <item row="3" column="0">
+         <widget class="QGroupBox" name="groupBox_4">
           <property name="title">
-           <string>电池组配置信息</string>
+           <string>均衡功能控制</string>
           </property>
-          <layout class="QGridLayout" name="gridLayout_10">
+          <layout class="QGridLayout" name="gridLayout_9">
+           <item row="1" column="2">
+            <widget class="QWidget" name="widget_2" native="true">
+             <layout class="QHBoxLayout" name="horizontalLayout_4">
+              <item>
+               <widget class="QPushButton" name="equalStartBtn">
+                <property name="text">
+                 <string>开启</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="equalCloseBtn">
+                <property name="text">
+                 <string>关闭</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
            <item row="0" column="0">
-            <widget class="QLabel" name="label_176">
+            <widget class="QLabel" name="label_41">
              <property name="text">
-              <string>电芯类型：</string>
+              <string>均衡功能开启状态：</string>
              </property>
             </widget>
            </item>
            <item row="0" column="2">
-            <widget class="QLabel" name="label_180">
-             <property name="text">
-              <string>电池设计容量(Ah)：</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="3">
-            <widget class="QLineEdit" name="lineEdit_13">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>16777215</width>
-               <height>16777215</height>
-              </size>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="1">
-            <widget class="QComboBox" name="comboBox_3">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>16777215</width>
-               <height>16777215</height>
-              </size>
-             </property>
-             <item>
-              <property name="text">
-               <string>磷酸铁锂电池</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>三元锂电池</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>其他</string>
-              </property>
-             </item>
-            </widget>
-           </item>
-           <item row="3" column="7">
-            <widget class="QPushButton" name="pushButton_12">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>16777215</width>
-               <height>16777215</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>保存</string>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="0">
-            <widget class="QLabel" name="label_178">
-             <property name="text">
-              <string>电池最大容量(Ah)：</string>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="1">
-            <widget class="QLineEdit" name="lineEdit_20">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>16777215</width>
-               <height>16777215</height>
-              </size>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="2">
-            <widget class="QLabel" name="label_182">
-             <property name="text">
-              <string>电池当前总容量(Ah)：</string>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="4">
-            <widget class="QLabel" name="label_192">
-             <property name="text">
-              <string>电池当前剩余容量(Ah)：</string>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="3">
-            <widget class="QLineEdit" name="lineEdit_21">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>16777215</width>
-               <height>16777215</height>
-              </size>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="5">
-            <widget class="QLineEdit" name="lineEdit_22">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>16777215</width>
-               <height>16777215</height>
-              </size>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="6">
-            <widget class="QLabel" name="label_193">
-             <property name="text">
-              <string>均衡开启压差(mV)：</string>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="7">
-            <widget class="QLineEdit" name="lineEdit_23">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>16777215</width>
-               <height>16777215</height>
-              </size>
-             </property>
-            </widget>
-           </item>
-           <item row="3" column="6">
-            <widget class="QPushButton" name="pushButton_11">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>16777215</width>
-               <height>16777215</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>读取</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="4">
-            <widget class="QLabel" name="label_195">
-             <property name="text">
-              <string>BMU数量：</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="5">
-            <widget class="QLineEdit" name="lineEdit_14">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>16777215</width>
-               <height>16777215</height>
-              </size>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="6">
-            <widget class="QLabel" name="label_177">
-             <property name="text">
-              <string>BMU单体电池数量：</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="7">
-            <widget class="QLineEdit" name="lineEdit_15">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>16777215</width>
-               <height>16777215</height>
-              </size>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0">
-            <widget class="QLabel" name="label_181">
-             <property name="text">
-              <string>BMU温度传感器数量：</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="1">
-            <widget class="QLineEdit" name="lineEdit_16">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>16777215</width>
-               <height>16777215</height>
-              </size>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="2">
-            <widget class="QLabel" name="label_191">
-             <property name="text">
-              <string>末端从控电池节数：</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="3">
-            <widget class="QLineEdit" name="lineEdit_17">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>16777215</width>
-               <height>16777215</height>
-              </size>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="4">
-            <widget class="QLabel" name="label_194">
-             <property name="text">
-              <string>末端从控温度个数：</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="5">
-            <widget class="QLineEdit" name="lineEdit_18">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>16777215</width>
-               <height>16777215</height>
-              </size>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="6">
-            <widget class="QLabel" name="label_179">
-             <property name="text">
-              <string>均衡关闭压差(mV)：</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="7">
-            <widget class="QLineEdit" name="lineEdit_19">
-             <property name="enabled">
-              <bool>true</bool>
-             </property>
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>16777215</width>
-               <height>16777215</height>
-              </size>
-             </property>
-            </widget>
+            <widget class="QLineEdit" name="lineEdit_66"/>
            </item>
           </layout>
          </widget>
         </item>
-        <item row="1" column="0">
-         <widget class="QGroupBox" name="groupBox_7">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
+        <item row="3" column="1">
+         <widget class="QGroupBox" name="groupBox_5">
           <property name="title">
-           <string>电流校准</string>
+           <string>BMU板卡序列号设置</string>
           </property>
-          <layout class="QGridLayout" name="gridLayout_9">
+          <layout class="QGridLayout" name="gridLayout_12">
            <item row="0" column="1">
-            <widget class="QLabel" name="label_169">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="layoutDirection">
-              <enum>Qt::LeftToRight</enum>
-             </property>
+            <widget class="QLineEdit" name="lineEdit_67"/>
+           </item>
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_42">
              <property name="text">
-              <string>AD值</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="3">
-            <widget class="QLabel" name="label_171">
-             <property name="text">
-              <string>输入真值</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="0">
-            <widget class="QLabel" name="label_173">
-             <property name="text">
-              <string>增益校准</string>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="1">
-            <widget class="QLineEdit" name="lineEdit_8"/>
-           </item>
-           <item row="1" column="0">
-            <widget class="QLabel" name="label_172">
-             <property name="text">
-              <string>零点偏移校准</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="2">
-            <widget class="QLabel" name="label_170">
-             <property name="text">
-              <string>V</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="6">
-            <widget class="QLabel" name="label_168">
-             <property name="text">
-              <string>校准参数</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="6">
-            <widget class="QLineEdit" name="lineEdit_11">
-             <property name="text">
-              <string/>
-             </property>
-             <property name="readOnly">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="2">
-            <widget class="QLabel" name="label_174">
-             <property name="text">
-              <string>V</string>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="3">
-            <widget class="QLineEdit" name="lineEdit_10"/>
-           </item>
-           <item row="1" column="5">
-            <widget class="QPushButton" name="pushButton_7">
-             <property name="text">
-              <string>读取AD值1计算</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="4">
-            <widget class="QLabel" name="label_167">
-             <property name="text">
-              <string>V</string>
+              <string>BUM序列号：</string>
              </property>
             </widget>
            </item>
            <item row="1" column="1">
-            <widget class="QLineEdit" name="lineEdit_7">
-             <property name="text">
-              <string/>
-             </property>
+            <widget class="QWidget" name="widget_3" native="true">
+             <layout class="QHBoxLayout" name="horizontalLayout_5">
+              <item>
+               <widget class="QPushButton" name="readBoardNoBtn">
+                <property name="text">
+                 <string>读取</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="modifyBoardNoBtn">
+                <property name="text">
+                 <string>修改</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
             </widget>
-           </item>
-           <item row="1" column="3">
-            <widget class="QLineEdit" name="lineEdit_9">
-             <property name="enabled">
-              <bool>true</bool>
-             </property>
-             <property name="autoFillBackground">
-              <bool>false</bool>
-             </property>
-             <property name="text">
-              <string/>
-             </property>
-             <property name="readOnly">
-              <bool>false</bool>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="8">
-            <widget class="QPushButton" name="pushButton_10">
-             <property name="text">
-              <string>保存电压标准参数</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="8">
-            <widget class="QPushButton" name="pushButton_9">
-             <property name="text">
-              <string>读取电压标准参数</string>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="4">
-            <widget class="QLabel" name="label_175">
-             <property name="text">
-              <string>V</string>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="6">
-            <widget class="QLineEdit" name="lineEdit_12">
-             <property name="readOnly">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="5">
-            <widget class="QPushButton" name="pushButton_8">
-             <property name="text">
-              <string>读取AD值2计算</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="7">
-            <spacer name="horizontalSpacer_6">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>40</width>
-               <height>20</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-          </layout>
-         </widget>
-        </item>
-        <item row="0" column="0">
-         <widget class="QGroupBox" name="groupBox_6">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="title">
-           <string>电压校准</string>
-          </property>
-          <layout class="QGridLayout" name="gridLayout_8">
-           <item row="0" column="3">
-            <widget class="QLabel" name="label_161">
-             <property name="text">
-              <string>输入真值</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0">
-            <widget class="QLabel" name="label_157">
-             <property name="text">
-              <string>零点偏移校准</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="1">
-            <widget class="QLabel" name="label_160">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="layoutDirection">
-              <enum>Qt::LeftToRight</enum>
-             </property>
-             <property name="text">
-              <string>AD值</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="6">
-            <widget class="QLabel" name="label_162">
-             <property name="text">
-              <string>校准参数</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="1">
-            <widget class="QLineEdit" name="lineEdit_1">
-             <property name="text">
-              <string/>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="6">
-            <widget class="QLineEdit" name="lineEdit_5">
-             <property name="text">
-              <string/>
-             </property>
-             <property name="readOnly">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="8">
-            <widget class="QPushButton" name="pushButton_5">
-             <property name="text">
-              <string>读取电压标准参数</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="3">
-            <widget class="QLineEdit" name="lineEdit_3">
-             <property name="enabled">
-              <bool>true</bool>
-             </property>
-             <property name="autoFillBackground">
-              <bool>false</bool>
-             </property>
-             <property name="text">
-              <string/>
-             </property>
-             <property name="readOnly">
-              <bool>false</bool>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="4">
-            <widget class="QLabel" name="label_165">
-             <property name="text">
-              <string>V</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="2">
-            <widget class="QLabel" name="label_163">
-             <property name="text">
-              <string>V</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="5">
-            <widget class="QPushButton" name="volCalBtn">
-             <property name="text">
-              <string>校准参数计算</string>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="2">
-            <widget class="QLabel" name="label_164">
-             <property name="text">
-              <string>V</string>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="4">
-            <widget class="QLabel" name="label_166">
-             <property name="text">
-              <string>V</string>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="8">
-            <widget class="QPushButton" name="pushButton_6">
-             <property name="text">
-              <string>保存电压标准参数</string>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="0">
-            <widget class="QLabel" name="label_159">
-             <property name="text">
-              <string>增益校准</string>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="6">
-            <widget class="QLineEdit" name="lineEdit_6">
-             <property name="readOnly">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="1">
-            <widget class="QLineEdit" name="lineEdit_2"/>
-           </item>
-           <item row="2" column="3">
-            <widget class="QLineEdit" name="lineEdit_4"/>
-           </item>
-           <item row="1" column="7">
-            <spacer name="horizontalSpacer_5">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>40</width>
-               <height>20</height>
-              </size>
-             </property>
-            </spacer>
            </item>
           </layout>
          </widget>
         </item>
        </layout>
+      </widget>
+      <widget class="QWidget" name="tab_3">
+       <attribute name="title">
+        <string>动态曲线</string>
+       </attribute>
       </widget>
       <widget class="QWidget" name="tab_5">
        <attribute name="title">
@@ -2806,6 +2851,9 @@
     <addaction name="actionopenudp"/>
     <addaction name="separator"/>
     <addaction name="actioncloseudp"/>
+    <addaction name="separator"/>
+    <addaction name="actionstart"/>
+    <addaction name="separator"/>
    </widget>
    <widget class="QMenu" name="menu_2">
     <property name="title">
@@ -2825,6 +2873,8 @@
    <addaction name="actionopenudp"/>
    <addaction name="separator"/>
    <addaction name="actioncloseudp"/>
+   <addaction name="separator"/>
+   <addaction name="actionstart"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionopenudp">
@@ -2837,6 +2887,11 @@
     <string>关闭UDP</string>
    </property>
   </action>
+  <action name="actionstart">
+   <property name="text">
+    <string>启动系统</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources>
@@ -2847,11 +2902,11 @@
    <sender>button_dataFlush</sender>
    <signal>clicked()</signal>
    <receiver>MainWindowClass</receiver>
-   <slot>on_dataFlushBtn_clicked()</slot>
+   <slot>dataFlushBtn_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>524</x>
-     <y>1229</y>
+     <x>625</x>
+     <y>1250</y>
     </hint>
     <hint type="destinationlabel">
      <x>549</x>
@@ -2860,14 +2915,62 @@
    </hints>
   </connection>
   <connection>
+   <sender>volCalBtn</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindowClass</receiver>
+   <slot>volCalBtn_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>833</x>
+     <y>266</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>868</x>
+     <y>79</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>confirmBtn</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindowClass</receiver>
+   <slot>confirmBtn_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1549</x>
+     <y>308</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1711</x>
+     <y>307</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>curCalBtn</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindowClass</receiver>
+   <slot>curCalBtn_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1661</x>
+     <y>266</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>16</x>
+     <y>438</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
    <sender>dataCheckBox</sender>
    <signal>stateChanged(int)</signal>
    <receiver>MainWindowClass</receiver>
-   <slot>on_dataCheckBox_stateChanged(int)</slot>
+   <slot>dataCheckBox_stateChanged(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>669</x>
-     <y>1218</y>
+     <x>787</x>
+     <y>1241</y>
     </hint>
     <hint type="destinationlabel">
      <x>926</x>
@@ -2876,25 +2979,245 @@
    </hints>
   </connection>
   <connection>
-   <sender>volCalBtn</sender>
+   <sender>readBatPackBtn</sender>
    <signal>clicked()</signal>
    <receiver>MainWindowClass</receiver>
-   <slot>on_volCalBtn_clicked()</slot>
+   <slot>readBatPackBtn_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>874</x>
-     <y>269</y>
+     <x>1433</x>
+     <y>734</y>
     </hint>
     <hint type="destinationlabel">
-     <x>868</x>
-     <y>79</y>
+     <x>1710</x>
+     <y>1002</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>readCurCalBtn</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindowClass</receiver>
+   <slot>readCurCalBtn_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1661</x>
+     <y>367</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1706</x>
+     <y>563</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>readVolCalBtn</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindowClass</receiver>
+   <slot>readVolCal_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>833</x>
+     <y>367</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1562</x>
+     <y>84</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>readYuZhiBtn</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindowClass</receiver>
+   <slot>readYuZhiBtn_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1406</x>
+     <y>1050</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1345</x>
+     <y>1317</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>saveYuZhiBtn</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindowClass</receiver>
+   <slot>saveYuZhiBtn_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1658</x>
+     <y>1050</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1708</x>
+     <y>1234</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>saveCurCalBtn</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindowClass</receiver>
+   <slot>saveCurCalBtn_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1661</x>
+     <y>425</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1709</x>
+     <y>661</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>saveVolCalBtn</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindowClass</receiver>
+   <slot>saveVolCal_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>833</x>
+     <y>425</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1075</x>
+     <y>83</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>saveBatPackBtn</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindowClass</receiver>
+   <slot>saveBatPackBtn_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1661</x>
+     <y>734</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1705</x>
+     <y>934</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButton_17</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindowClass</receiver>
+   <slot>saveYuZhiBtn_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1658</x>
+     <y>1050</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1665</x>
+     <y>1321</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButton_19</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindowClass</receiver>
+   <slot>saveYuZhiBtn_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1658</x>
+     <y>1050</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1708</x>
+     <y>1269</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButton_20</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindowClass</receiver>
+   <slot>readYuZhiBtn_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1406</x>
+     <y>1050</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1710</x>
+     <y>1303</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButton_18</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindowClass</receiver>
+   <slot>readYuZhiBtn_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1406</x>
+     <y>1050</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>13</x>
+     <y>1283</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>equalStartBtn</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindowClass</receiver>
+   <slot>equalStartBtn_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>396</x>
+     <y>1224</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>212</x>
+     <y>1320</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>equalCloseBtn</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindowClass</receiver>
+   <slot>equalCloseBtn_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>681</x>
+     <y>1237</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>576</x>
+     <y>1325</y>
     </hint>
    </hints>
   </connection>
  </connections>
  <slots>
-  <slot>on_dataFlushBtn_clicked()</slot>
-  <slot>on_dataCheckBox_stateChanged(int)</slot>
-  <slot>on_volCalBtn_clicked()</slot>
+  <slot>dataFlushBtn_clicked()</slot>
+  <slot>dataCheckBox_stateChanged(int)</slot>
+  <slot>volCalBtn_clicked()</slot>
+  <slot>curCalBtn_clicked()</slot>
+  <slot>readBatPackBtn_clicked()</slot>
+  <slot>readYuZhiBtn_clicked()</slot>
+  <slot>saveYuZhiBtn_clicked()</slot>
+  <slot>saveBatPackBtn_clicked()</slot>
+  <slot>confirmBtn_clicked()</slot>
+  <slot>readVolCal_clicked()</slot>
+  <slot>saveVolCal_clicked()</slot>
+  <slot>readCurCalBtn_clicked()</slot>
+  <slot>saveCurCalBtn_clicked()</slot>
+  <slot>equalStartBtn_clicked()</slot>
+  <slot>equalCloseBtn_clicked()</slot>
  </slots>
 </ui>
