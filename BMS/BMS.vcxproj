@@ -31,7 +31,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="QtSettings">
     <QtInstall>Qt5.9.9</QtInstall>
     <QtModules>core;gui;widgets;network</QtModules>
-    <QtBuildConfig>release</QtBuildConfig>
+    <QtBuildConfig>debug</QtBuildConfig>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'" Label="QtSettings">
     <QtInstall>Qt5.9.9</QtInstall>
@@ -53,6 +53,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <IncludePath>$(ProjectDir);$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
     <LibraryPath>D:\Qt\Qt5.9\5.9.9\msvc2015_64\bin;$(LibraryPath)</LibraryPath>
@@ -61,6 +62,11 @@
     <ClCompile>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Link>
+      <AdditionalDependencies>Qt5PrintSupportd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="Configuration">
     <ClCompile>
@@ -89,6 +95,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="qcustomplot.cpp" />
     <QtRcc Include="mainwindow.qrc" />
     <QtUic Include="dialog.ui" />
     <QtUic Include="mainwindow.ui" />
@@ -103,6 +110,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="bms.h" />
+    <QtMoc Include="qcustomplot.h" />
     <ClInclude Include="resource.h" />
     <QtMoc Include="DataCenter.h" />
   </ItemGroup>

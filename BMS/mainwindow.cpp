@@ -5,8 +5,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
 	ui.setupUi(this);
 	dataCenter = new DataCenter(this);
-	//dataCenter->udpSocket = new QUdpSocket(this);
-
+	//this->setWindowIcon(QIcon(":/images/BMS.ico"));
+	//this->setIconSize(QSize(250, 250));
 	timer = new QTimer(this);
 
 	iniConnect();
@@ -24,6 +24,8 @@ void MainWindow::iniConnect()
 
 void MainWindow::guiInitate()
 { 
+	//动态曲线
+	setupRealtimevoltage(ui.customPlotV);
 	/*单体电压表格*/
 	QStringList header;
 	header << u8"序号" << u8"电压(mV)" << u8"均衡状态";
@@ -58,6 +60,69 @@ void MainWindow::guiInitate()
 	ui.periodLineEdit->setPlaceholderText(u8"请输入1-60");//背景提示用户输入范围
 }
 
+//初始化动态曲线
+void MainWindow::setupRealtimevoltage(QCustomPlot *customPlot)
+{
+	//customPlot->setBackground(QBrush(Qt::transparent)); 
+	customPlot->addGraph(); // blue line
+	customPlot->graph(0)->setPen(QPen(QColor(40, 110, 255)));
+	customPlot->addGraph(); // red line
+	customPlot->graph(1)->setPen(QPen(QColor(255, 110, 40)));
+	customPlot->xAxis->setBasePen(QPen(Qt::blue, 4));
+	customPlot->yAxis->setBasePen(QPen(Qt::blue, 4));
+
+	QSharedPointer<QCPAxisTickerTime> timeTicker(new QCPAxisTickerTime);
+	timeTicker->setTimeFormat("%h:%m:%s");
+	customPlot->xAxis->setTicker(timeTicker);
+	customPlot->axisRect()->setupFullAxesBox();
+	customPlot->yAxis->setRange(0, 1000);
+
+	// make left and bottom axes transfer their ranges to right and top axes:
+	connect(customPlot->xAxis, SIGNAL(rangeChanged(QCPRange)), customPlot->xAxis2, SLOT(setRange(QCPRange)));
+	connect(customPlot->yAxis, SIGNAL(rangeChanged(QCPRange)), customPlot->yAxis2, SLOT(setRange(QCPRange)));
+
+	// setup a timer that repeatedly calls MainWindow::realtimeDataSlot:
+	connect(&dataTimer, SIGNAL(timeout()), this, SLOT(realtimeDataSlot()));
+	dataTimer.start(0); // Interval 0 means to refresh as fast as possible
+}
+
+void MainWindow::realtimeDataSlot()
+{
+	static QTime time(QTime::currentTime());
+	// calculate two new data points:
+	double key = time.elapsed() / 1000.0; // time elapsed since start of demo, in seconds
+	static double lastPointKey = 0;
+	if (key - lastPointKey > 0.002) // at most add point every 2 ms
+	{
+		// add data to lines:
+		ui.customPlotV->graph(0)->addData(key, qSin(key) + qrand() / (double)RAND_MAX * 1 * qSin(key / 0.3843));
+		ui.customPlotV->graph(1)->addData(key, qCos(key) + qrand() / (double)RAND_MAX*0.5*qSin(key / 0.4364));
+		// rescale value (vertical) axis to fit the current data:
+		//ui->customPlot->graph(0)->rescaleValueAxis();
+		//ui->customPlot->graph(1)->rescaleValueAxis(true);
+		lastPointKey = key;
+	}
+	// make key axis range scroll with the data (at a constant range size of 8):
+	ui.customPlotV->xAxis->setRange(key, 8, Qt::AlignRight);
+	ui.customPlotV->replot();
+
+	// calculate frames per second:
+	static double lastFpsKey;
+	static int frameCount;
+	++frameCount;
+	if (key - lastFpsKey > 2) // average fps over 2 seconds
+	{
+		ui.statusBar->showMessage(
+			QString("%1 FPS, Total Data points: %2")
+			.arg(frameCount / (key - lastFpsKey), 0, 'f', 0)
+			.arg(ui.customPlotV->graph(0)->data()->size() + ui.customPlotV->graph(1)->data()->size())
+			, 0);
+		lastFpsKey = key;
+		frameCount = 0;
+	}
+}
+
+
 void MainWindow::on_actionopenudp_triggered()
 {
 	dlg = new Dialog();
@@ -90,14 +155,12 @@ void MainWindow::on_actioncloseudp_triggered()
 //系统启动事件
 void MainWindow::on_actionstart_triggered()
 {
-	quint8 ps = 0xB1;
-
 	char buf[8];
 	buf[0] = 3;
 	for (int i = 1; i < 8; i++)
 		buf[i] = 0;
 
-	int ret = dataCenter->sendDataToUdp(buf, 8, ps);
+	int ret = dataCenter->sendDataToUdp(buf, 8, BMS::SendCommand);
 	if (ret == -1)
 	{
 		QMessageBox::warning(this, u8"错误", u8"请检查网络连接!");
@@ -316,7 +379,6 @@ void MainWindow::dataChange(DataCenter::DataType type)
 		break;
 	case DataCenter::CurCal:
 		BMS::CurCalDataSt curCal = dataCenter->getCurCalData();
-
 		ui.lineEdit_11->setText(QString::number((float)curCal.offSet / 10, 'f', 1));
 		ui.lineEdit_12->setText(QString::number(curCal.gain, 'f', 3));
 		break;
@@ -329,7 +391,6 @@ void MainWindow::dataChange(DataCenter::DataType type)
 		break;
 	case DataCenter::BatPackConf2:
 		BMS::BatPackConfData2St	batPackConf2 = dataCenter->getBatPackConfData2();
-
 		ui.lineEdit_16->setText(QString::number(batPackConf2.tempSensorNum));
 		ui.lineEdit_17->setText(QString::number(batPackConf2.endSlaveBatNum));
 		ui.lineEdit_18->setText(QString::number(batPackConf2.endSlaveTempNum));
@@ -345,7 +406,6 @@ void MainWindow::dataChange(DataCenter::DataType type)
 		break;
 	case DataCenter::BaojingPara1:
 		BMS::BaojingParaData1St baojingPara1 = dataCenter->getBaojingParaData1();
-
 		ui.lineEdit_24->setText(QString::number(baojingPara1.cellUV));
 		ui.lineEdit_25->setText(QString::number(baojingPara1.cellOV));
 		ui.lineEdit_26->setText(QString::number(baojingPara1.packUV, 'f', 1));
@@ -353,7 +413,6 @@ void MainWindow::dataChange(DataCenter::DataType type)
 		break;
 	case DataCenter::BaojingPara2:
 		BMS::BaojingParaData2St baojingPara2 = dataCenter->getBaojingParaData2();
-
 		ui.lineEdit_28->setText(QString::number(baojingPara2.charUT));
 		ui.lineEdit_29->setText(QString::number(baojingPara2.charOT));
 		ui.lineEdit_30->setText(QString::number(baojingPara2.dischUT));
@@ -361,7 +420,6 @@ void MainWindow::dataChange(DataCenter::DataType type)
 		break;
 	case DataCenter::BaojingPara3:
 		BMS::BaojingParaData3St baojingPara3 = dataCenter->getBaojingParaData3();
-
 		ui.lineEdit_32->setText(QString::number(baojingPara3.charOC));
 		ui.lineEdit_33->setText(QString::number(baojingPara3.dischOC));
 		ui.lineEdit_34->setText(QString::number(baojingPara3.commOT));
@@ -369,13 +427,11 @@ void MainWindow::dataChange(DataCenter::DataType type)
 		break;
 	case DataCenter::BaojingPara4:
 		BMS::BaojingParaData4St baojingPara4 = dataCenter->getBaojingParaData4();
-
 		ui.lineEdit_36->setText(QString::number(baojingPara4.volDiff));
 		ui.lineEdit_37->setText(QString::number(baojingPara4.tempDiff));
 		break;
 	case DataCenter::BaohuPara1:
 		BMS::BaohuParaData1St baohuPara1 = dataCenter->getBaohuParaData1();
-
 		ui.lineEdit_38->setText(QString::number(baohuPara1.cellUV));
 		ui.lineEdit_39->setText(QString::number(baohuPara1.cellOV));
 		ui.lineEdit_40->setText(QString::number(baohuPara1.packUV, 'f', 1));
@@ -383,7 +439,6 @@ void MainWindow::dataChange(DataCenter::DataType type)
 		break;
 	case DataCenter::BaohuPara2:
 		BMS::BaohuParaData2St baohuPara2 = dataCenter->getBaohuParaData2();
-
 		ui.lineEdit_42->setText(QString::number(baohuPara2.charUT));
 		ui.lineEdit_43->setText(QString::number(baohuPara2.charOT));
 		ui.lineEdit_44->setText(QString::number(baohuPara2.dischUT));
@@ -391,7 +446,6 @@ void MainWindow::dataChange(DataCenter::DataType type)
 		break;
 	case DataCenter::BaohuPara3:
 		BMS::BaohuParaData3St baohuPara3 = dataCenter->getBaohuParaData3();
-
 		ui.lineEdit_46->setText(QString::number(baohuPara3.charOC));
 		ui.lineEdit_47->setText(QString::number(baohuPara3.dischOC));
 		ui.lineEdit_48->setText(QString::number(baohuPara3.commOT));
@@ -399,13 +453,11 @@ void MainWindow::dataChange(DataCenter::DataType type)
 		break;
 	case DataCenter::BaohuPara4:
 		BMS::BaohuParaData4St baohuPara4 = dataCenter->getBaohuParaData4();
-
 		ui.lineEdit_50->setText(QString::number(baohuPara4.volDiff));
 		ui.lineEdit_51->setText(QString::number(baohuPara4.tempDiff));
 		break;
 	case DataCenter::HuifuPara1:
 		BMS::HuifuParaData1St huifuPara1 = dataCenter->getHuifuParaData1();
-
 		ui.lineEdit_52->setText(QString::number(huifuPara1.cellUV));
 		ui.lineEdit_53->setText(QString::number(huifuPara1.cellOV));
 		ui.lineEdit_54->setText(QString::number(huifuPara1.packUV, 'f', 1));
@@ -413,7 +465,6 @@ void MainWindow::dataChange(DataCenter::DataType type)
 		break;
 	case DataCenter::HuifuPara2:
 		BMS::HuifuParaData2St huifuPara2 = dataCenter->getHuifuParaData2();
-
 		ui.lineEdit_56->setText(QString::number(huifuPara2.charUT));
 		ui.lineEdit_57->setText(QString::number(huifuPara2.charOT));
 		ui.lineEdit_58->setText(QString::number(huifuPara2.dischUT));
@@ -421,7 +472,6 @@ void MainWindow::dataChange(DataCenter::DataType type)
 		break;
 	case DataCenter::HuifuPara3:
 		BMS::HuifuParaData3St huifuPara3 = dataCenter->getHuifuParaData3();
-
 		ui.lineEdit_60->setText(QString::number(huifuPara3.charOC));
 		ui.lineEdit_61->setText(QString::number(huifuPara3.dischOC));
 		ui.lineEdit_62->setText(QString::number(huifuPara3.commOT));
@@ -429,13 +479,11 @@ void MainWindow::dataChange(DataCenter::DataType type)
 		break;
 	case DataCenter::HuifuPara4:
 		BMS::HuifuParaData4St huifuPara4 = dataCenter->getHuifuParaData4();
-
 		ui.lineEdit_64->setText(QString::number(huifuPara4.volDiff));
 		ui.lineEdit_65->setText(QString::number(huifuPara4.tempDiff));
 		break;
 	case DataCenter::EqualFunState:
 		BMS::EqualFunStateDataSt equalFunState = dataCenter->getEqualFunStateData();
-
 		QString state;
 		if (equalFunState.state)
 			state = u8"开启";
@@ -454,7 +502,6 @@ void MainWindow::dataFlushBtn_clicked()
 	while (iterator_1 != m_volMap.constEnd()) {
 		ui.tableWidget->setItem(iterator_1.key(), 0, new QTableWidgetItem(QString::number(iterator_1.key() + 1)));
 		ui.tableWidget->setItem(iterator_1.key(), 1, new QTableWidgetItem(QString::number(iterator_1.value())));
-
 		++iterator_1;
 	}
 
@@ -464,14 +511,12 @@ void MainWindow::dataFlushBtn_clicked()
 	while (iterator_2 != m_tempMap.constEnd()) {
 		ui.tableWidget_2->setItem(iterator_2.key(), 0, new QTableWidgetItem(QString::number(iterator_2.key() + 1)));
 		ui.tableWidget_2->setItem(iterator_2.key(), 1, new QTableWidgetItem(QString::number(iterator_2.value())));
-
 		++iterator_2;
 	}
 
 	//均衡
 	QTableWidgetItem *item = new QTableWidgetItem();
 	ui.tableWidget_3->setRowCount(m_equalMap.size());
-
 	int i = 0;
 	QString item1;
 	for (QMap<int, bool>::const_iterator iterator_3 = m_equalMap.constBegin(); iterator_3 != m_equalMap.constEnd(); iterator_3++)
@@ -581,7 +626,7 @@ void MainWindow::readBatPackBtn_clicked()
 	for (int i = 2; i < 8; i++)
 		buf[i] = 0;
 
-	int ret = dataCenter->sendDataToUdp(buf, 8, ps);
+	int ret = dataCenter->sendDataToUdp(buf, 8, BMS::SendCommand);
 	if (ret == -1)
 		QMessageBox::warning(this, u8"错误", u8"读取失败！");
 }
@@ -633,15 +678,13 @@ void MainWindow::readYuZhiBtn_clicked()
 	ui.lineEdit_64->setText("");
 	ui.lineEdit_65->setText("");
 
-	quint8 ps = 0xB1;
 	char buf[8];
-
 	buf[0] = 1;
 	buf[1] = 1;
 	for (int i = 2; i < 8; i++)
 		buf[i] = 0;
 
-	dataCenter->sendDataToUdp(buf, 8, ps);
+	dataCenter->sendDataToUdp(buf, 8, BMS::SendCommand);
 }
 
 //保存电池组配置参数信息
@@ -699,9 +742,9 @@ void MainWindow::saveBatPackBtn_clicked()
 	buf3[6] = temp >> 8;
 	buf3[7] = temp & 0xff;
 
-	int ret1 = dataCenter->sendDataToUdp(buf1, 8, ps1);
-	int ret2 = dataCenter->sendDataToUdp(buf2, 8, ps2);
-	int ret3 = dataCenter->sendDataToUdp(buf3, 8, ps3);
+	int ret1 = dataCenter->sendDataToUdp(buf1, 8, BMS::SaveBatPackConf1);
+	int ret2 = dataCenter->sendDataToUdp(buf2, 8, BMS::SaveBatPackConf2);
+	int ret3 = dataCenter->sendDataToUdp(buf3, 8, BMS::SaveBatPackConf3);
 	if (ret1 == -1 || ret2 == -1 || ret3 == -1)
 	{
 		QMessageBox::warning(this, "错误", "读取失败！");
@@ -718,11 +761,6 @@ void MainWindow::saveYuZhiBtn_clicked()
 	int ret4;
 
 	//报警阈值参数
-	quint8 baojingPs1 = 0xA3;
-	quint8 baojingPs2 = 0xA4;
-	quint8 baojingPs3 = 0xA5;
-	quint8 baojingPs4 = 0xA6;
-
 	char bjBuf1[8];
 	char bjBuf2[8];
 	char bjBuf3[8];
@@ -740,7 +778,7 @@ void MainWindow::saveYuZhiBtn_clicked()
 	temp = 10 * ui.lineEdit_27->text().toFloat();
 	bjBuf1[6] = temp >> 8;
 	bjBuf1[7] = temp & 0xff;
-	ret1 = dataCenter->sendDataToUdp(bjBuf1, 8, baojingPs1);
+	ret1 = dataCenter->sendDataToUdp(bjBuf1, 8, BMS::SaveBaojingPara1);
 
 	temp = ui.lineEdit_28->text().toInt() + 40;
 	bjBuf2[0] = temp >> 8;
@@ -754,7 +792,7 @@ void MainWindow::saveYuZhiBtn_clicked()
 	temp = ui.lineEdit_31->text().toInt() + 40;
 	bjBuf2[6] = temp >> 8;
 	bjBuf2[7] = temp & 0xff;
-	ret2 = dataCenter->sendDataToUdp(bjBuf2, 8, baojingPs2);
+	ret2 = dataCenter->sendDataToUdp(bjBuf2, 8, BMS::SaveBaojingPara2);
 
 	temp = 10 * ui.lineEdit_32->text().toFloat();
 	bjBuf3[0] = temp >> 8;
@@ -768,7 +806,7 @@ void MainWindow::saveYuZhiBtn_clicked()
 	temp = ui.lineEdit_35->text().toInt();
 	bjBuf3[6] = temp >> 8;
 	bjBuf3[7] = temp & 0xff;
-	ret3 = dataCenter->sendDataToUdp(bjBuf3, 8, baojingPs3);
+	ret3 = dataCenter->sendDataToUdp(bjBuf3, 8, BMS::SaveBaojingPara3);
 
 	temp = ui.lineEdit_36->text().toInt();
 	bjBuf4[0] = temp >> 8;
@@ -781,20 +819,13 @@ void MainWindow::saveYuZhiBtn_clicked()
 	bjBuf4[6] = 0;
 	bjBuf4[7] = 0;
 
-	ret4 = dataCenter->sendDataToUdp(bjBuf4, 8, baojingPs4);
-
+	ret4 = dataCenter->sendDataToUdp(bjBuf4, 8, BMS::SaveBaojingPara4);
 	if (ret1 == -1 || ret2 == -1 || ret3 == -1 || ret4 == -1)
-	{
 		QMessageBox::warning(this, u8"错误", u8"读取发生错误，请检查网络连接！");
-	}
 
 	Sleep(20);
-	//保护阈值参数
-	quint8 baohuPs1 = 0xA7;
-	quint8 baohuPs2 = 0xA8;
-	quint8 baohuPs3 = 0xA9;
-	quint8 baohuPs4 = 0xAA;
 
+	//保护阈值参数
 	char bhBuf1[8];
 	char bhBuf2[8];
 	char bhBuf3[8];
@@ -812,7 +843,7 @@ void MainWindow::saveYuZhiBtn_clicked()
 	temp = 10 * ui.lineEdit_41->text().toFloat();
 	bhBuf1[6] = temp >> 8;
 	bhBuf1[7] = temp & 0xff;
-	ret1 = dataCenter->sendDataToUdp(bhBuf1, 8, baohuPs1);
+	ret1 = dataCenter->sendDataToUdp(bhBuf1, 8, BMS::SaveBaohuPara1);
 
 	temp = ui.lineEdit_42->text().toInt() + 40;
 	bhBuf2[0] = temp >> 8;
@@ -826,7 +857,7 @@ void MainWindow::saveYuZhiBtn_clicked()
 	temp = ui.lineEdit_45->text().toInt() + 40;
 	bhBuf2[6] = temp >> 8;
 	bhBuf2[7] = temp & 0xff;
-	ret2 = dataCenter->sendDataToUdp(bhBuf2, 8, baohuPs2);
+	ret2 = dataCenter->sendDataToUdp(bhBuf2, 8, BMS::SaveBaohuPara2);
 
 	temp = 10 * ui.lineEdit_46->text().toFloat();
 	bhBuf3[0] = temp >> 8;
@@ -840,7 +871,7 @@ void MainWindow::saveYuZhiBtn_clicked()
 	temp = ui.lineEdit_49->text().toInt();
 	bhBuf3[6] = temp >> 8;
 	bhBuf3[7] = temp & 0xff;
-	ret3 = dataCenter->sendDataToUdp(bhBuf3, 8, baohuPs3);
+	ret3 = dataCenter->sendDataToUdp(bhBuf3, 8, BMS::SaveBaohuPara3);
 
 	temp = ui.lineEdit_50->text().toInt();
 	bhBuf4[0] = temp >> 8;
@@ -852,7 +883,7 @@ void MainWindow::saveYuZhiBtn_clicked()
 	bhBuf4[5] = 0;
 	bhBuf4[6] = 0;
 	bhBuf4[7] = 0;
-	ret4 = dataCenter->sendDataToUdp(bhBuf4, 8, baohuPs4);
+	ret4 = dataCenter->sendDataToUdp(bhBuf4, 8, BMS::SaveBaohuPara4);
 
 	if (ret1 == -1 || ret2 == -1 || ret3 == -1 || ret4 == -1)
 	{
@@ -861,11 +892,6 @@ void MainWindow::saveYuZhiBtn_clicked()
 
 	Sleep(20);
 	//恢复阈值参数
-	quint8 huifuPs1 = 0xAB;
-	quint8 huifuPs2 = 0xAC;
-	quint8 huifuPs3 = 0xAD;
-	quint8 huifuPs4 = 0xAE;
-
 	char hfBuf1[8];
 	char hfBuf2[8];
 	char hfBuf3[8];
@@ -883,7 +909,7 @@ void MainWindow::saveYuZhiBtn_clicked()
 	temp = 10 * ui.lineEdit_55->text().toFloat();
 	hfBuf1[6] = temp >> 8;
 	hfBuf1[7] = temp & 0xff;
-	ret1 = dataCenter->sendDataToUdp(hfBuf1, 8, huifuPs1);
+	ret1 = dataCenter->sendDataToUdp(hfBuf1, 8, BMS::SaveHuifuPara1);
 
 	temp = ui.lineEdit_56->text().toInt() + 40;
 	hfBuf2[0] = temp >> 8;
@@ -897,7 +923,7 @@ void MainWindow::saveYuZhiBtn_clicked()
 	temp = ui.lineEdit_59->text().toInt() + 40;
 	hfBuf2[6] = temp >> 8;
 	hfBuf2[7] = temp & 0xff;
-	ret2 = dataCenter->sendDataToUdp(hfBuf2, 8, huifuPs2);
+	ret2 = dataCenter->sendDataToUdp(hfBuf2, 8, BMS::SaveHuifuPara2);
 
 	temp = 10 * ui.lineEdit_60->text().toFloat();
 	hfBuf3[0] = temp >> 8;
@@ -911,7 +937,7 @@ void MainWindow::saveYuZhiBtn_clicked()
 	temp = ui.lineEdit_63->text().toInt();
 	hfBuf3[6] = temp >> 8;
 	hfBuf3[7] = temp & 0xff;
-	ret3 = dataCenter->sendDataToUdp(hfBuf3, 8, huifuPs3);
+	ret3 = dataCenter->sendDataToUdp(hfBuf3, 8, BMS::SaveHuifuPara3);
 
 	temp = ui.lineEdit_64->text().toInt();
 	hfBuf4[0] = temp >> 8;
@@ -923,18 +949,16 @@ void MainWindow::saveYuZhiBtn_clicked()
 	hfBuf4[5] = 0;
 	hfBuf4[6] = 0;
 	hfBuf4[7] = 0;
-	ret4 = dataCenter->sendDataToUdp(hfBuf4, 8, huifuPs4);
+	ret4 = dataCenter->sendDataToUdp(hfBuf4, 8, BMS::SaveHuifuPara4);
 
 	if (ret1 == -1 || ret2 == -1 || ret3 == -1 || ret4 == -1)
-	{
 		QMessageBox::warning(this, u8"错误", u8"读取发生错误，请检查网络连接！");
-	}
+
 }
 
 //继电器控制事件
 void MainWindow::confirmBtn_clicked()
 {
-	quint8 ps = 0xB1;
 	char buf[8];
 	buf[0] = 2;
 	buf[1] = 0;
@@ -959,7 +983,7 @@ void MainWindow::confirmBtn_clicked()
 	buf[6] = 0;
 	buf[7] = 0;
 
-	int ret = dataCenter->sendDataToUdp(buf, 8, ps);
+	int ret = dataCenter->sendDataToUdp(buf, 8, BMS::SendCommand);
 	if (ret != -1)
 		QMessageBox::information(this, u8"提示", u8"操作成功!");
 	else
@@ -973,7 +997,6 @@ void MainWindow::readVolCal_clicked()
 	ui.lineEdit_5->setText("");
 	ui.lineEdit_6->setText("");
 
-	quint8 ps = 0xB1;
 	char buf[8];
 	buf[0] = 1;
 	buf[1] = 2;
@@ -984,13 +1007,12 @@ void MainWindow::readVolCal_clicked()
 	buf[6] = 0;
 	buf[7] = 0;
 
-	int ret = dataCenter->sendDataToUdp(buf, 8, ps);
+	int ret = dataCenter->sendDataToUdp(buf, 8, BMS::SendCommand);
 }
 
 //保存电压校准参数
 void MainWindow::saveVolCal_clicked()
 {
-	quint8 ps = 0xB8;
 	char buf[8];
 	quint16 temp;
 
@@ -1007,7 +1029,7 @@ void MainWindow::saveVolCal_clicked()
 	buf[6] = 0;
 	buf[7] = 0;
 
-	int ret = dataCenter->sendDataToUdp(buf, 8, ps);
+	int ret = dataCenter->sendDataToUdp(buf, 8, BMS::SaveVolCal);
 }
 
 //读取电流校准参数
@@ -1017,7 +1039,6 @@ void MainWindow::readCurCalBtn_clicked()
 	ui.lineEdit_11->setText("");
 	ui.lineEdit_12->setText("");
 
-	quint8 ps = 0xB1;
 	char buf[8];
 	buf[0] = 1;
 	buf[1] = 3;
@@ -1028,13 +1049,12 @@ void MainWindow::readCurCalBtn_clicked()
 	buf[6] = 0;
 	buf[7] = 0;
 
-	int ret = dataCenter->sendDataToUdp(buf, 8, ps);
+	int ret = dataCenter->sendDataToUdp(buf, 8, BMS::SendCommand);
 }
 
 //保存电流校准参数
 void MainWindow::saveCurCalBtn_clicked()
 {
-	quint8 ps = 0xB9;
 	char buf[8];
 	quint16 temp;
 
@@ -1051,20 +1071,17 @@ void MainWindow::saveCurCalBtn_clicked()
 	buf[6] = 0;
 	buf[7] = 0;
 
-	int ret = dataCenter->sendDataToUdp(buf, 8, ps);
+	int ret = dataCenter->sendDataToUdp(buf, 8, BMS::SaveCurCal);
 }
 
 //均衡功能状态开启
 void MainWindow::equalStartBtn_clicked()
 {
-	quint8 ps = 0xBA;
 	char buf[8];
-
 	buf[0] = 1;
 	for (int i = 1; i < 8; i++)
 		buf[i] = 0;
-
-	int ret = dataCenter->sendDataToUdp(buf, 8, ps);
+	int ret = dataCenter->sendDataToUdp(buf, 8, BMS::SendEqualFunCtrl);
 	if (ret == -1)
 		QMessageBox::warning(this, u8"错误", "开启失败！请检查网络连接！");
 }
@@ -1078,7 +1095,7 @@ void MainWindow::equalCloseBtn_clicked()
 	for (int i = 0; i < 8; i++)
 		buf[i] = 0;
 
-	int ret = dataCenter->sendDataToUdp(buf, 8, ps);
+	int ret = dataCenter->sendDataToUdp(buf, 8, BMS::SendEqualFunCtrl);
 	if (ret == -1)
 		QMessageBox::warning(this, u8"错误", "开启失败！请检查网络连接！");
 }

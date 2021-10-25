@@ -7,7 +7,7 @@
 #include "ui_mainwindow.h"
 #include "dialog.h"
 #include "DataCenter.h"
-
+#include "qcustomplot.h"
 
 class MainWindow : public QMainWindow
 {
@@ -15,6 +15,8 @@ class MainWindow : public QMainWindow
 
 public:
     MainWindow(QWidget *parent = Q_NULLPTR);
+
+	void setupRealtimevoltage(QCustomPlot *customPlot);//初始化动态曲线
 signals:
 
 private:
@@ -26,6 +28,7 @@ private:
 	void guiInitate();//初始化界面
 
 	QTimer *timer;
+	QTimer dataTimer;
 
 	//单体电池和温度数量
 	int m_batTotalNum;
@@ -52,6 +55,8 @@ private:
 	int m_tempCount;
 
 private slots:
+	void realtimeDataSlot();////添加实时数据槽
+
 	void on_actionopenudp_triggered();//打开udp事件
 	void on_actioncloseudp_triggered();//关闭udp事件
 	void on_actionstart_triggered();//系统启动事件

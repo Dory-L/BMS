@@ -8,9 +8,58 @@ namespace BMS {
 	//数据的功能（命令）编码,用于接收或发送数据时表明数据的功能
 	enum DataFunc : unsigned char {
 		//接收数据类型
+		CellVolFunc_Head = 0x00, //单体电压帧头
+		CellVolFunc_Tail = 0x63,//单体电压帧尾
+		CellTempFunc_Head = 0x64,//单体温度帧头
+		CellTempFunc_Tail = 0x95,//单体温度帧尾
+		VolMaxMinFunc = 0x96,//电压最值帧
+		TempMaxMinFunc = 0x97,//温度最值帧
 		BatPackStatFunc = 0x98,//电池组状态信息
+		CharDisCutOffFunc = 0x99,//充放电截止信息帧
+		SOCSOHFunc = 0x9A,//SOC、SOH信息帧
+		BMSStateFunc = 0x9B,//BMS状态信息
+		BatPackConf1Func = 0xA0,//电池组配置信息帧1
+		BatPackConf2Func = 0xA1,//电池组配置信息帧2
+		BatPackConf3Func = 0xA2,//电池组配置信息帧3
+		BaojingPara1Func = 0xA3,//报警阈值帧1
+		BaojingPara2Func = 0xA4,//报警阈值帧2
+		BaojingPara3Func = 0xA5,//报警阈值帧3
+		BaojingPara4Func = 0xA6,//报警阈值帧4
+		BaohuPara1Func = 0xA7,//保护阈值帧1
+		BaohuPara2Func = 0xA8,//保护阈值帧2
+		BaohuPara3Func = 0xA9,//保护阈值帧3
+		BaohuPara4Func = 0xAA,//保护阈值帧4
+		HuifuPara1Func = 0xAB,//恢复阈值帧1
+		HuifuPara2Func = 0xAC,//恢复阈值帧2
+		HuifuPara3Func = 0xAD,//恢复阈值帧3
+		HuifuPara4Func = 0xAE,//恢复阈值帧4
+		VolCalFunc = 0xB8,//电压校准参数帧
+		CurCalFunc = 0xB9,//电流校准参数帧
+		EqualFunStateFunc = 0xBA,//均衡功能状态帧
+		EqualStateFunc_Head = 0xC0,//均衡状态帧头
+		EqualStateFunc_Tail = 0xCF,//均衡状态帧头
 
 		//发送数据类型
+
+		SaveBatPackConf1 = 0xA0,//电池组配置信息帧1
+		SaveBatPackConf2 = 0xA1,//电池组配置信息帧1
+		SaveBatPackConf3 = 0xA2,//电池组配置信息帧1
+		SaveBaojingPara1 = 0xA3,//报警阈值帧1
+		SaveBaojingPara2 = 0xA4,//报警阈值帧1
+		SaveBaojingPara3 = 0xA5,//报警阈值帧1
+		SaveBaojingPara4 = 0xA6,//报警阈值帧1
+		SaveBaohuPara1 = 0xA7,//保护阈值帧1
+		SaveBaohuPara2 = 0xA8,//保护阈值帧1
+		SaveBaohuPara3 = 0xA9,//保护阈值帧1
+		SaveBaohuPara4 = 0xAA,//保护阈值帧1
+		SaveHuifuPara1 = 0xAB,//恢复阈值帧1
+		SaveHuifuPara2 = 0xAC,//恢复阈值帧2
+		SaveHuifuPara3 = 0xAD,//恢复阈值帧3
+		SaveHuifuPara4 = 0xAE,//恢复阈值帧4
+		SendCommand = 0xB1,//上位机指令帧
+		SaveVolCal = 0xB8,//电压校准参数帧
+		SaveCurCal = 0xB9,//电流校准参数帧
+		SendEqualFunCtrl = 0xBA,//均衡功能开启控制帧
 	};
 
 	enum BMSState : quint16 {

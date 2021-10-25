@@ -28,7 +28,7 @@ public:
 		VolCal, CurCal, EqualFunState};
 
 	//发送数据到网络
-	int sendDataToUdp(char *pointer, int count, quint8 func);
+	int sendDataToUdp(char *pointer, int count, BMS::DataFunc func);
 
 	//状态查询
 	//获取网络状态 udp不需要？

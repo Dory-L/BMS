@@ -23,7 +23,7 @@ void DataCenter::iniConnect()
 }
 
 //发送数据到网络
-int DataCenter::sendDataToUdp(char *pointer, int count, quint8 func)
+int DataCenter::sendDataToUdp(char *pointer, int count, BMS::DataFunc func)
 {
 	int size = count + 5;
 	char* temp = new char[size];
@@ -96,118 +96,199 @@ void DataCenter::dataAnalysisUdp(quint8 data)
 			FunctionNo = receiveBuffer[1];
 
 			/*-------------在此进行数据分发------------*/
-			if (FunctionNo >= 0x00 && FunctionNo <= 0x63) //单体电压完整帧
+
+			switch (FunctionNo)
 			{
-				receiveCellVol(idAndData, 11);
-			}
-			else if (FunctionNo >= 0x64 && FunctionNo <= 0x95)//单体温度完整帧
-			{
-				receiveCellTemp(idAndData, 11);
-			}
-			else if (FunctionNo == 0x96)//电压最值帧
-			{
+			case BMS::VolMaxMinFunc://电压最值帧
 				receiveVolMaxMin(idAndData, 11);
-			}
-			else if (FunctionNo == 0x97)//温度最值帧
-			{
+				break;
+			case BMS::TempMaxMinFunc://温度最值帧
 				receiveTempMaxMin(idAndData, 11);
-			}
-			else if (FunctionNo == 0x98)//电池组状态信息
-			{
+				break;
+			case BMS::BatPackStatFunc://电池组状态信息
 				receiveBatPackStat(idAndData, 11);
-			}
-			else if (FunctionNo == 0x99)//充放电截止信息帧
-			{
+				break;
+			case BMS::CharDisCutOffFunc://充放电截止信息帧
 				receiveCharDisCutOff(idAndData, 11);
-			}
-			else if (FunctionNo == 0x9A)//SOC、SOH信息帧
-			{
+				break;
+			case BMS::SOCSOHFunc://SOC、SOH信息帧
 				receiveSOCSOH(idAndData, 11);
-			}
-			else if (FunctionNo == 0x9B)//BMS状态信息
-			{
+				break;
+			case BMS::BMSStateFunc://BMS状态信息
 				receiveBMSState(idAndData, 11);
-			}
-			else if (FunctionNo == 0xA0)//电池组配置信息帧1
-			{
+				break;
+			case BMS::BatPackConf1Func://电池组配置信息帧1
 				receiveBatPackConfData1(idAndData, 11);
-			}
-			else if (FunctionNo == 0xA1)//电池组配置信息帧2
-			{
+				break;
+			case BMS::BatPackConf2Func://电池组配置信息帧2
 				receiveBatPackConfData2(idAndData, 11);
-			}
-			else if (FunctionNo == 0xA2)//电池组配置信息帧3
-			{
+				break;
+			case BMS::BatPackConf3Func://电池组配置信息帧3
 				receiveBatPackConfData3(idAndData, 11);
-			}
-			else if (FunctionNo == 0xA3)//报警阈值帧1
-			{
+				break;
+			case BMS::BaojingPara1Func://报警阈值帧1
 				receiveBaojingParaData1(idAndData, 11);
-			}
-			else if (FunctionNo == 0xA4)//报警阈值帧2
-			{
+				break;
+			case BMS::BaojingPara2Func://报警阈值帧2
 				receiveBaojingParaData2(idAndData, 11);
-			}
-			else if (FunctionNo == 0xA5)//报警阈值帧3
-			{
+				break;
+			case BMS::BaojingPara3Func://报警阈值帧3
 				receiveBaojingParaData3(idAndData, 11);
-			}
-			else if (FunctionNo == 0xA6)//报警阈值帧4
-			{
+				break;
+			case BMS::BaojingPara4Func://报警阈值帧4
 				receiveBaojingParaData4(idAndData, 11);
-			}
-			else if (FunctionNo == 0xA7)//保护阈值帧1
-			{
+				break;
+			case BMS::BaohuPara1Func://保护阈值帧1
 				receiveBaohuParaData1(idAndData, 11);
-			}
-			else if (FunctionNo == 0xA8)//保护阈值帧2
-			{
+				break;
+			case BMS::BaohuPara2Func://保护阈值帧2
 				receiveBaohuParaData2(idAndData, 11);
-			}
-			else if (FunctionNo == 0xA9)//保护阈值帧3
-			{
+				break;
+			case BMS::BaohuPara3Func://保护阈值帧3
 				receiveBaohuParaData3(idAndData, 11);
-			}
-			else if (FunctionNo == 0xAA)//保护阈值帧4
-			{
+				break;
+			case BMS::BaohuPara4Func://保护阈值帧4
 				receiveBaohuParaData4(idAndData, 11);
-			}
-			else if (FunctionNo == 0xAB)//恢复阈值帧1
-			{
+				break;
+			case BMS::HuifuPara1Func://恢复阈值帧1
 				receiveHuifuParaData1(idAndData, 11);
-			}
-			else if (FunctionNo == 0xAC)//恢复阈值帧2
-			{
+				break;
+			case BMS::HuifuPara2Func://恢复阈值帧2
 				receiveHuifuParaData2(idAndData, 11);
-			}
-			else if (FunctionNo == 0xAD)//恢复阈值帧3
-			{
+				break;
+			case BMS::HuifuPara3Func://恢复阈值帧3
 				receiveHuifuParaData3(idAndData, 11);
-			}
-			else if (FunctionNo == 0xAE)//恢复阈值帧4
-			{
+				break;
+			case BMS::HuifuPara4Func://恢复阈值帧4
 				receiveHuifuParaData4(idAndData, 11);
-			}
-			else if (FunctionNo == 0xB8)//电压校准参数帧
-			{
+				break;
+			case BMS::VolCalFunc://电压校准参数帧
 				receiveVolCal(idAndData, 11);
-			}
-			else if (FunctionNo == 0xB9)//电流校准参数帧
-			{
+				break;
+			case BMS::CurCalFunc://电流校准参数帧
 				receiveCurCal(idAndData, 11);
-			}
-			else if (FunctionNo == 0xBA)
-			{
+				break;
+			case BMS::EqualFunStateFunc://均衡功能状态帧
 				receiveEqualFunState(idAndData, 1);
+				break;
+			default:
+				if (FunctionNo >= 0x00 && FunctionNo <= 0x63) //单体电压完整帧
+					receiveCellVol(idAndData, 11);
+				else if (FunctionNo >= 0x64 && FunctionNo <= 0x95)//单体温度完整帧
+					receiveCellTemp(idAndData, 11);
+				else if (FunctionNo >= 0xC0 && FunctionNo <= 0xCF)//均衡状态帧
+					receiveEqualStateData(idAndData, 11);
+				break;
 			}
-			else if (FunctionNo >= 0xC0 && FunctionNo <= 0xCF)//均衡状态帧
-			{
-				receiveEqualStateData(idAndData, 11);
-			}
-			else if (FunctionNo == 0xD0)//0xD0,电池和温度总数帧
-			{
-				receiveBatTempNum(idAndData, 11);
-			}
+
+			//if (FunctionNo >= 0x00 && FunctionNo <= 0x63) //单体电压完整帧
+			//{
+			//	receiveCellVol(idAndData, 11);
+			//}
+			//else if (FunctionNo >= 0x64 && FunctionNo <= 0x95)//单体温度完整帧
+			//{
+			//	receiveCellTemp(idAndData, 11);
+			//}
+			//else if (FunctionNo == 0x96)//电压最值帧
+			//{
+			//	receiveVolMaxMin(idAndData, 11);
+			//}
+			//else if (FunctionNo == 0x97)//温度最值帧
+			//{
+			//	receiveTempMaxMin(idAndData, 11);
+			//}
+			//else if (FunctionNo == 0x98)//电池组状态信息
+			//{
+			//	receiveBatPackStat(idAndData, 11);
+			//}
+			//else if (FunctionNo == 0x99)//充放电截止信息帧
+			//{
+			//	receiveCharDisCutOff(idAndData, 11);
+			//}
+			//else if (FunctionNo == 0x9A)//SOC、SOH信息帧
+			//{
+			//	receiveSOCSOH(idAndData, 11);
+			//}
+			//else if (FunctionNo == 0x9B)//BMS状态信息
+			//{
+			//	receiveBMSState(idAndData, 11);
+			//}
+			//else if (FunctionNo == 0xA0)//电池组配置信息帧1
+			//{
+			//	receiveBatPackConfData1(idAndData, 11);
+			//}
+			//else if (FunctionNo == 0xA1)//电池组配置信息帧2
+			//{
+			//	receiveBatPackConfData2(idAndData, 11);
+			//}
+			//else if (FunctionNo == 0xA2)//电池组配置信息帧3
+			//{
+			//	receiveBatPackConfData3(idAndData, 11);
+			//}
+			//else if (FunctionNo == 0xA3)//报警阈值帧1
+			//{
+			//	receiveBaojingParaData1(idAndData, 11);
+			//}
+			//else if (FunctionNo == 0xA4)//报警阈值帧2
+			//{
+			//	receiveBaojingParaData2(idAndData, 11);
+			//}
+			//else if (FunctionNo == 0xA5)//报警阈值帧3
+			//{
+			//	receiveBaojingParaData3(idAndData, 11);
+			//}
+			//else if (FunctionNo == 0xA6)//报警阈值帧4
+			//{
+			//	receiveBaojingParaData4(idAndData, 11);
+			//}
+			//else if (FunctionNo == 0xA7)//保护阈值帧1
+			//{
+			//	receiveBaohuParaData1(idAndData, 11);
+			//}
+			//else if (FunctionNo == 0xA8)//保护阈值帧2
+			//{
+			//	receiveBaohuParaData2(idAndData, 11);
+			//}
+			//else if (FunctionNo == 0xA9)//保护阈值帧3
+			//{
+			//	receiveBaohuParaData3(idAndData, 11);
+			//}
+			//else if (FunctionNo == 0xAA)//保护阈值帧4
+			//{
+			//	receiveBaohuParaData4(idAndData, 11);
+			//}
+			//else if (FunctionNo == 0xAB)//恢复阈值帧1
+			//{
+			//	receiveHuifuParaData1(idAndData, 11);
+			//}
+			//else if (FunctionNo == 0xAC)//恢复阈值帧2
+			//{
+			//	receiveHuifuParaData2(idAndData, 11);
+			//}
+			//else if (FunctionNo == 0xAD)//恢复阈值帧3
+			//{
+			//	receiveHuifuParaData3(idAndData, 11);
+			//}
+			//else if (FunctionNo == 0xAE)//恢复阈值帧4
+			//{
+			//	receiveHuifuParaData4(idAndData, 11);
+			//}
+			//else if (FunctionNo == 0xB8)//电压校准参数帧
+			//{
+			//	receiveVolCal(idAndData, 11);
+			//}
+			//else if (FunctionNo == 0xB9)//电流校准参数帧
+			//{
+			//	receiveCurCal(idAndData, 11);
+			//}
+			//else if (FunctionNo == 0xBA)
+			//{
+			//	receiveEqualFunState(idAndData, 1);
+			//}
+			//else if (FunctionNo >= 0xC0 && FunctionNo <= 0xCF)//均衡状态帧
+			//{
+			//	receiveEqualStateData(idAndData, 11);
+			//}
 
 			recFlag &= ~OVER_FLAG;
 		}
