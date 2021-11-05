@@ -29,6 +29,7 @@ public:
 
 	//发送数据到网络
 	int sendDataToUdp(char *pointer, int count, BMS::DataFunc func);
+	int manualSendToUdp(char *pointer, int count);//手动发送
 
 	//状态查询
 	//获取网络状态 udp不需要？
@@ -43,7 +44,6 @@ public:
 	BMS::BMSStateDataSt	   getBMSStateData() { return BMSStateData; }
 	BMS::CellVolDataSt	   getCellVolData() { return cellVolData; }
 	BMS::CellTempDataSt	   getCellTempData() { return cellTempData; }
-	BMS::BatTempNumDataSt  getBatTempNumData() { return batTempNumData; }
 	BMS::EqualStateDataSt	getEqualStateData() { return  equalStateData; }
 
 	BMS::BatPackConfData1St	 getBatPackConfData1() { return batPackConfData1; }
@@ -74,8 +74,9 @@ signals:
 	void warning(QString str);
 	void error(QString str);
 	void newMassage(QString str);
+	void receiveOriginalData(quint8 data[], int n);//接收原始数据
+	void sendOriginalData(char data[], int n);//发送原始数据
 public slots:
-
 private slots :
 	//数据接收
 	void receiveUdpData();
@@ -85,9 +86,6 @@ private slots :
 	void udpErrorOccur(QAbstractSocket::SocketError socketError);
 
 private:
-	
-
-	
 	
 	//信号槽
 	void iniConnect();
@@ -141,7 +139,6 @@ private:
 	BMS::BMSStateDataSt		  BMSStateData;
 	BMS::CellVolDataSt		  cellVolData;
 	BMS::CellTempDataSt		  cellTempData;
-	BMS::BatTempNumDataSt	  batTempNumData;
 	BMS::EqualStateDataSt	  equalStateData;
 
 	BMS::BatPackConfData1St	  batPackConfData1;

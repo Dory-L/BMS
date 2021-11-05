@@ -1,10 +1,11 @@
 <RCC>
     <qresource prefix="/MainWindow"/>
     <qresource prefix="/">
+        <file>images/BMS.ico</file>
+        <file>images/BMS.png</file>
         <file>images/保护.ico</file>
         <file>images/报警.ico</file>
         <file>images/正常.ico</file>
-        <file>images/BMS.ico</file>
-        <file>images/BMS.png</file>
+        <file>images/favicon.ico</file>
     </qresource>
 </RCC>

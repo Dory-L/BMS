@@ -4,13 +4,18 @@
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
 	ui.setupUi(this);
+	
 	dataCenter = new DataCenter(this);
 	//this->setWindowIcon(QIcon(":/images/BMS.ico"));
-	//this->setIconSize(QSize(250, 250));
+	//this->setIconSize(QSize(500, 500));
+	QIcon tubiao(":/images/favicon.ico");
+	this->setWindowIcon(tubiao);
 	timer = new QTimer(this);
-
 	iniConnect();
 	guiInitate();
+
+	m_receFps = 0;
+	m_sendFPs = 0;
 }
 
 void MainWindow::iniConnect()
@@ -18,14 +23,18 @@ void MainWindow::iniConnect()
 	connect(ui.actionopenudp, SIGNAL(triggered), this, SLOT(on_actionopenudp_triggered));
 	connect(ui.actioncloseudp, SIGNAL(triggered), this, SLOT(on_actioncloseudp_triggered));
 	connect(timer, SIGNAL(timeout()), this, SLOT(dataFlushBtn_clicked()));
+	connect(dataCenter, &DataCenter::receiveOriginalData, this, &MainWindow::displayReceiveData);
+	connect(dataCenter, &DataCenter::sendOriginalData, this, &MainWindow::displaySendData);
 	//dataCenter
 	connect(dataCenter, &DataCenter::newData, this, &MainWindow::dataChange);
 }
 
 void MainWindow::guiInitate()
 { 
+	ui.groupBox_8->layout()->setMargin(3);
+	//ui.tab_6->layout()->setMargin(2);
 	//动态曲线
-	setupRealtimevoltage(ui.customPlotV);
+	setupRealtimeData(ui.customPlotV, ui.customPlotA);
 	/*单体电压表格*/
 	QStringList header;
 	header << u8"序号" << u8"电压(mV)" << u8"均衡状态";
@@ -58,32 +67,63 @@ void MainWindow::guiInitate()
 	IntValidator->setRange(1, 60);//可以改成（-255,255），这样就是负数
 	ui.periodLineEdit->setValidator(IntValidator);
 	ui.periodLineEdit->setPlaceholderText(u8"请输入1-60");//背景提示用户输入范围
+							   
+	ui.lcdNumber->setDigitCount(4);// 设置能显示的位数
+	ui.lcdNumber->setMode(QLCDNumber::Dec);// 设置显示的模式为十进制
+	ui.lcdNumber->setDigitCount(4);// 设置能显示的位数
+	ui.lcdNumber->setMode(QLCDNumber::Dec);// 设置显示的模式为十进制
+
+	//状态栏
+	ui.statusBar->setSizeGripEnabled(false);//去掉状态栏右下角的三角
+	aimLabel = new QLabel(this);
+	localLabel = new QLabel(this);
+	localLabel->setText(u8"本地端口:");
+	aimLabel->setText(u8"目标IP:		目标端口:	");
+	QFont ft;
+	ft.setPointSize(8);
+	aimLabel->setFont(ft);
+	localLabel->setFont(ft);
+	ui.statusBar->addWidget(localLabel, 1);
+	ui.statusBar->addWidget(aimLabel, 1);
 }
 
 //初始化动态曲线
-void MainWindow::setupRealtimevoltage(QCustomPlot *customPlot)
+void MainWindow::setupRealtimeData(QCustomPlot *customPlotV, QCustomPlot *customPlotA)
 {
 	//customPlot->setBackground(QBrush(Qt::transparent)); 
-	customPlot->addGraph(); // blue line
-	customPlot->graph(0)->setPen(QPen(QColor(40, 110, 255)));
-	customPlot->addGraph(); // red line
-	customPlot->graph(1)->setPen(QPen(QColor(255, 110, 40)));
-	customPlot->xAxis->setBasePen(QPen(Qt::blue, 4));
-	customPlot->yAxis->setBasePen(QPen(Qt::blue, 4));
+	customPlotV->addGraph(); // blue line
+	customPlotV->graph(0)->setPen(QPen(QColor(40, 110, 255)));
+	customPlotV->xAxis->setBasePen(QPen(Qt::blue, 4));
+	customPlotV->yAxis->setBasePen(QPen(Qt::blue, 4));
+	customPlotV->xAxis->setLabel(u8"时间(单位：秒)");
+	customPlotV->yAxis->setLabel(u8"总电压(单位：V)");
+
+	customPlotA->addGraph(); // blue line
+	customPlotA->graph(0)->setPen(QPen(QColor(40, 110, 255)));
+	customPlotA->xAxis->setBasePen(QPen(Qt::blue, 4));
+	customPlotA->yAxis->setBasePen(QPen(Qt::blue, 4));
+	customPlotA->xAxis->setLabel(u8"时间(单位：秒)");
+	customPlotA->yAxis->setLabel(u8"总电流(单位：A)");
 
 	QSharedPointer<QCPAxisTickerTime> timeTicker(new QCPAxisTickerTime);
 	timeTicker->setTimeFormat("%h:%m:%s");
-	customPlot->xAxis->setTicker(timeTicker);
-	customPlot->axisRect()->setupFullAxesBox();
-	customPlot->yAxis->setRange(0, 1000);
+	customPlotV->xAxis->setTicker(timeTicker);
+	customPlotV->axisRect()->setupFullAxesBox();
+	customPlotV->yAxis->setRange(0, 1000);
+
+	customPlotA->xAxis->setTicker(timeTicker);
+	customPlotA->axisRect()->setupFullAxesBox();
+	customPlotA->yAxis->setRange(-100, 100);
 
 	// make left and bottom axes transfer their ranges to right and top axes:
-	connect(customPlot->xAxis, SIGNAL(rangeChanged(QCPRange)), customPlot->xAxis2, SLOT(setRange(QCPRange)));
-	connect(customPlot->yAxis, SIGNAL(rangeChanged(QCPRange)), customPlot->yAxis2, SLOT(setRange(QCPRange)));
+	connect(customPlotV->xAxis, SIGNAL(rangeChanged(QCPRange)), customPlotV->xAxis2, SLOT(setRange(QCPRange)));
+	connect(customPlotV->yAxis, SIGNAL(rangeChanged(QCPRange)), customPlotV->yAxis2, SLOT(setRange(QCPRange)));
+	connect(customPlotA->xAxis, SIGNAL(rangeChanged(QCPRange)), customPlotA->xAxis2, SLOT(setRange(QCPRange)));
+	connect(customPlotA->yAxis, SIGNAL(rangeChanged(QCPRange)), customPlotA->yAxis2, SLOT(setRange(QCPRange)));
 
 	// setup a timer that repeatedly calls MainWindow::realtimeDataSlot:
 	connect(&dataTimer, SIGNAL(timeout()), this, SLOT(realtimeDataSlot()));
-	dataTimer.start(0); // Interval 0 means to refresh as fast as possible
+	
 }
 
 void MainWindow::realtimeDataSlot()
@@ -92,64 +132,107 @@ void MainWindow::realtimeDataSlot()
 	// calculate two new data points:
 	double key = time.elapsed() / 1000.0; // time elapsed since start of demo, in seconds
 	static double lastPointKey = 0;
-	if (key - lastPointKey > 0.002) // at most add point every 2 ms
+	if (key - lastPointKey > 1) // at most add point every 1 s
 	{
 		// add data to lines:
-		ui.customPlotV->graph(0)->addData(key, qSin(key) + qrand() / (double)RAND_MAX * 1 * qSin(key / 0.3843));
-		ui.customPlotV->graph(1)->addData(key, qCos(key) + qrand() / (double)RAND_MAX*0.5*qSin(key / 0.4364));
+		ui.customPlotV->graph(0)->addData(key, m_totalVol);
+		ui.customPlotA->graph(0)->addData(key, m_totalCur);
 		// rescale value (vertical) axis to fit the current data:
-		//ui->customPlot->graph(0)->rescaleValueAxis();
-		//ui->customPlot->graph(1)->rescaleValueAxis(true);
+		ui.customPlotV->graph(0)->rescaleValueAxis(true, true);
+		ui.customPlotA->graph(0)->rescaleValueAxis(true, true);
 		lastPointKey = key;
 	}
 	// make key axis range scroll with the data (at a constant range size of 8):
 	ui.customPlotV->xAxis->setRange(key, 8, Qt::AlignRight);
 	ui.customPlotV->replot();
+	ui.customPlotA->xAxis->setRange(key, 8, Qt::AlignRight);
+	ui.customPlotA->replot();
 
 	// calculate frames per second:
-	static double lastFpsKey;
-	static int frameCount;
-	++frameCount;
-	if (key - lastFpsKey > 2) // average fps over 2 seconds
-	{
-		ui.statusBar->showMessage(
-			QString("%1 FPS, Total Data points: %2")
-			.arg(frameCount / (key - lastFpsKey), 0, 'f', 0)
-			.arg(ui.customPlotV->graph(0)->data()->size() + ui.customPlotV->graph(1)->data()->size())
-			, 0);
-		lastFpsKey = key;
-		frameCount = 0;
-	}
+	//static double lastFpsKey;
+	//static int frameCount;
+	//++frameCount;
+	//if (key - lastFpsKey > 2) // average fps over 2 seconds
+	//{
+	//	ui.statusBar->showMessage(
+	//		QString("%1 FPS, Total Data points: %2")
+	//		.arg(frameCount / (key - lastFpsKey), 0, 'f', 0)
+	//		.arg(ui.customPlotV->graph(0)->data()->size() + ui.customPlotV->graph(1)->data()->size())
+	//		, 0);
+	//	lastFpsKey = key;
+	//	frameCount = 0;
+	//}
 }
 
+void MainWindow::displayReceiveData(quint8 data[], int n)
+{
+	QString temp;
+	temp = "88 10 ";
+	for (int i = 0; i < n; i++)
+	{
+		temp += QString("%1").arg((quint8)data[i],2, 16, QLatin1Char('0')).toUpper();
+		//temp += QString::number((quint8)data[i], 16);
+		temp += " ";
+	}
+
+	ui.textBrowser->append(QString(u8"[RX %1]：%2").arg(QTime::currentTime().toString("HH:mm:ss")).arg(temp));
+	m_receFps++;
+	ui.lcdNumber->display(QString::number(m_receFps));
+}
+
+void MainWindow::displaySendData(char data[], int n)
+{
+	QString temp;
+	for (int i = 0; i < n; i++)
+	{
+		temp += QString("%1").arg((quint8)data[i], 2, 16, QLatin1Char('0')).toUpper();
+		//temp += QString::number((quint8)data[i], 16);
+		temp += " ";
+	}
+	ui.textBrowser->append(QString(u8"[TX %1]：%2").arg(QTime::currentTime().toString("HH:mm:ss")).arg(temp));
+	m_sendFPs++;
+	ui.lcdNumber_2->display(QString::number(m_sendFPs));
+}
 
 void MainWindow::on_actionopenudp_triggered()
 {
 	dlg = new Dialog();
+	connect(dlg, &Dialog::aimOk_Signal, this, &MainWindow::aimOK_Slot);
+	connect(dlg, &Dialog::localOk_Signal, this, &MainWindow::localOk_Slot);
 	int ret = dlg->exec();
-	if (ret == QDialog::Accepted)
-	{
-		dataCenter->m_aimIp = QHostAddress(dlg->getAimIp());
-		dataCenter->m_aimPort = dlg->getAimPort();
 
-		int localPort = dlg->getLocalPort();
-
-		if ((dataCenter->udpSocket->bind(localPort) == true))
-		{
-			QMessageBox::information(this, u8"提示", u8"UDP打开成功！");
-		}
-		else {
-			QMessageBox::warning(this, u8"警告", u8"UDP打开失败！");
-		}
-	}
 	delete dlg;
 	dlg = NULL;
+}
+
+void MainWindow::aimOK_Slot(int aimPort, QString aimIp)
+{
+	dataCenter->m_aimIp = QHostAddress(aimIp);
+	dataCenter->m_aimPort = aimPort;
+	QMessageBox::information(this, u8"提示", u8"目标IP和端口绑定成功！");
+
+	QString aimStr = QString(u8"目标IP:%1 目标端口:%2").arg(aimIp).arg(QString::number(aimPort));
+	aimLabel->setText(aimStr);
+}
+
+void MainWindow::localOk_Slot(int localPort)
+{
+	if ((dataCenter->udpSocket->bind(localPort) == true))
+	{
+		QMessageBox::information(this, u8"提示", u8"UDP端口绑定成功！");
+		
+		QString localStr = QString(u8"本地端口:%1").arg(localPort);
+		localLabel->setText(localStr);
+	}
+	else
+		QMessageBox::warning(this, u8"警告", u8"UDP打开失败！");
 }
 
 void MainWindow::on_actioncloseudp_triggered()
 {
 	dataCenter->udpSocket->close();
-	QMessageBox::information(this, u8"提示", u8"UDP关闭成功!");
+	QMessageBox::information(this, u8"提示", u8"UDP端口关闭成功!");
+	localLabel->setText(u8"本地端口:");
 }
 
 //系统启动事件
@@ -164,6 +247,9 @@ void MainWindow::on_actionstart_triggered()
 	if (ret == -1)
 	{
 		QMessageBox::warning(this, u8"错误", u8"请检查网络连接!");
+	}
+	else {
+		dataTimer.start(0); // Interval 0 means to refresh as fast as possible
 	}
 }
 
@@ -209,6 +295,8 @@ void MainWindow::dataChange(DataCenter::DataType type)
 	case DataCenter::BatPackStat://电池组状态
 		BMS::BatPackStatDataSt batPack = dataCenter->getBatPackStatData();
 		/*在界面显示信息*/
+		m_totalVol = batPack.totalVol;
+		m_totalCur = batPack.totalCur;
 		ui.lineEdit_totalV->setText(QString::number(batPack.totalVol));
 		ui.lineEdit_totalA->setText(QString::number(batPack.totalCur));
 		ui.lineEdit_aveV->setText(QString::number(batPack.aveVol));
@@ -684,7 +772,9 @@ void MainWindow::readYuZhiBtn_clicked()
 	for (int i = 2; i < 8; i++)
 		buf[i] = 0;
 
-	dataCenter->sendDataToUdp(buf, 8, BMS::SendCommand);
+	int ret = dataCenter->sendDataToUdp(buf, 8, BMS::SendCommand);
+	if (ret == -1)
+		QMessageBox::warning(this, u8"错误", u8"读取失败！");
 }
 
 //保存电池组配置参数信息
@@ -738,7 +828,7 @@ void MainWindow::saveBatPackBtn_clicked()
 	temp = ui.lineEdit_19->text().toInt();
 	buf3[4] = temp >> 8;
 	buf3[5] = temp & 0xff;
-	temp = ui.lineEdit_23->text().toInt();
+	temp = 10 * ui.lineEdit_23->text().toFloat();
 	buf3[6] = temp >> 8;
 	buf3[7] = temp & 0xff;
 
@@ -747,7 +837,7 @@ void MainWindow::saveBatPackBtn_clicked()
 	int ret3 = dataCenter->sendDataToUdp(buf3, 8, BMS::SaveBatPackConf3);
 	if (ret1 == -1 || ret2 == -1 || ret3 == -1)
 	{
-		QMessageBox::warning(this, "错误", "读取失败！");
+		QMessageBox::warning(this, u8"错误", u8"保存失败，请检查网络连接！");
 	}
 }
 
@@ -821,7 +911,10 @@ void MainWindow::saveYuZhiBtn_clicked()
 
 	ret4 = dataCenter->sendDataToUdp(bjBuf4, 8, BMS::SaveBaojingPara4);
 	if (ret1 == -1 || ret2 == -1 || ret3 == -1 || ret4 == -1)
-		QMessageBox::warning(this, u8"错误", u8"读取发生错误，请检查网络连接！");
+	{
+		QMessageBox::warning(this, u8"错误", u8"保存失败，请检查网络连接！");
+		return;
+	}
 
 	Sleep(20);
 
@@ -887,7 +980,8 @@ void MainWindow::saveYuZhiBtn_clicked()
 
 	if (ret1 == -1 || ret2 == -1 || ret3 == -1 || ret4 == -1)
 	{
-		QMessageBox::warning(this, u8"错误", u8"读取发生错误，请检查网络连接！");
+		QMessageBox::warning(this, u8"错误", u8"保存失败，请检查网络连接！");
+		return;
 	}
 
 	Sleep(20);
@@ -952,7 +1046,10 @@ void MainWindow::saveYuZhiBtn_clicked()
 	ret4 = dataCenter->sendDataToUdp(hfBuf4, 8, BMS::SaveHuifuPara4);
 
 	if (ret1 == -1 || ret2 == -1 || ret3 == -1 || ret4 == -1)
-		QMessageBox::warning(this, u8"错误", u8"读取发生错误，请检查网络连接！");
+	{
+		QMessageBox::warning(this, u8"错误", u8"保存失败，请检查网络连接！");
+		return;
+	}
 
 }
 
@@ -1083,7 +1180,7 @@ void MainWindow::equalStartBtn_clicked()
 		buf[i] = 0;
 	int ret = dataCenter->sendDataToUdp(buf, 8, BMS::SendEqualFunCtrl);
 	if (ret == -1)
-		QMessageBox::warning(this, u8"错误", "开启失败！请检查网络连接！");
+		QMessageBox::warning(this, u8"错误", u8"开启失败！请检查网络连接！");
 }
 
 //均衡功能状态关闭
@@ -1097,6 +1194,172 @@ void MainWindow::equalCloseBtn_clicked()
 
 	int ret = dataCenter->sendDataToUdp(buf, 8, BMS::SendEqualFunCtrl);
 	if (ret == -1)
-		QMessageBox::warning(this, u8"错误", "开启失败！请检查网络连接！");
+		QMessageBox::warning(this, u8"错误", u8"关闭失败！请检查网络连接！");
 }
 
+//暂停显示事件
+void MainWindow::on_pauseBtn_clicked()
+{
+	if (ui.pauseBtn->text() == u8"暂停显示")
+	{
+		disconnect(dataCenter, &DataCenter::receiveOriginalData, this, &MainWindow::displayReceiveData);
+		disconnect(dataCenter, &DataCenter::sendOriginalData, this, &MainWindow::displaySendData);
+		ui.pauseBtn->setText(u8"继续显示");
+	}
+	else if (ui.pauseBtn->text() == u8"继续显示")
+	{
+		connect(dataCenter, &DataCenter::receiveOriginalData, this, &MainWindow::displayReceiveData);
+		connect(dataCenter, &DataCenter::sendOriginalData, this, &MainWindow::displaySendData);
+		ui.pauseBtn->setText(u8"暂停显示");
+	}
+}
+
+//清空显示事件
+void MainWindow::on_clearBtn_clicked()
+{
+	ui.textBrowser->clear();
+	ui.lcdNumber->display(0);
+	ui.lcdNumber_2->display(0);
+	m_receFps = 0;
+	m_sendFPs = 0;
+}
+
+//手动发送事件
+void MainWindow::on_manualSendBtn_clicked()
+{
+	char ch;
+	bool flag = false;
+	uint32_t i, len;
+
+	QString SendTextEditStr = ui.lineEdit->text();
+
+	//去掉无用符号
+	SendTextEditStr = SendTextEditStr.replace(' ', "");
+	SendTextEditStr = SendTextEditStr.replace(',', "");
+	SendTextEditStr = SendTextEditStr.replace('\r', "");
+	SendTextEditStr = SendTextEditStr.replace('\n', "");
+	SendTextEditStr = SendTextEditStr.replace('\t', "");
+	SendTextEditStr = SendTextEditStr.replace("0x", "");
+	SendTextEditStr = SendTextEditStr.replace("0X", "");
+	//判断数据合法性
+	for (i = 0, len = SendTextEditStr.length(); i < len; i++)
+	{
+		ch = SendTextEditStr.at(i).toLatin1();
+		if (ch >= '0' && ch <= '9') {
+			flag = false;
+		}
+		else if (ch >= 'a' && ch <= 'f') {
+			flag = false;
+		}
+		else if (ch >= 'A' && ch <= 'F') {
+			flag = false;
+		}
+		else {
+			flag = true;
+		}
+	}
+	if (flag)
+	{
+		QMessageBox::warning(this, u8"警告", u8"输入内容包含非法16进制字符！");
+		return;
+	}
+
+	//QString转QByteArray
+	QByteArray SendTextEditBa = QString2Hex(SendTextEditStr);
+	int size = SendTextEditBa.size();
+	char* data;
+	data = SendTextEditBa.data();
+	//memcpy(data, SendTextEditBa, size);
+	int n = sizeof(data);
+	int ret = dataCenter->manualSendToUdp(data, size);
+	if (ret == -1)
+		QMessageBox::warning(this, u8"错误", u8"请检查网络连接！");
+}
+
+//将一个字符串转换成十六进制
+QByteArray MainWindow::QString2Hex(QString str)
+{
+	QByteArray senddata;
+	int hexdata, lowhexdata;
+	int hexdatalen = 0;
+	int len = str.length();
+	senddata.resize(len / 2);
+	char lstr, hstr;
+	for (int i = 0; i<len; )
+	{
+		hstr = str[i].toLatin1();
+		if (hstr == ' ')
+		{
+			i++;
+			continue;
+		}
+		i++;
+		if (i >= len)
+			break;
+		lstr = str[i].toLatin1();
+		hexdata = ConvertHexChar(hstr);
+		lowhexdata = ConvertHexChar(lstr);
+		if ((hexdata == 16) || (lowhexdata == 16))
+			break;
+		else
+			hexdata = hexdata * 16 + lowhexdata;
+		i++;
+		senddata[hexdatalen] = (char)hexdata;
+		hexdatalen++;
+	}
+	senddata.resize(hexdatalen);
+	return senddata;
+}
+
+char MainWindow::ConvertHexChar(char ch)
+{
+	if ((ch >= '0') && (ch <= '9'))
+		return ch - 0x30;
+	else if ((ch >= 'A') && (ch <= 'F'))
+		return ch - 'A' + 10;
+	else if ((ch >= 'a') && (ch <= 'f'))
+		return ch - 'a' + 10;
+	else return (-1);
+}
+
+//刷新第一页
+void MainWindow::on_updateBtn_clicked()
+{
+	ui.lineEdit_totalV->setText("");
+	ui.lineEdit_totalA->setText("");
+	ui.lineEdit_aveV->setText("");
+	ui.lineEdit_aveT->setText("");
+	ui.lineEdit_SOC->setText("");
+	ui.lineEdit_SOH->setText("");
+	ui.lineEdit_chargeCutOffTotalV->setText("");
+	ui.lineEdit_dischargeCutOffTotalV->setText("");
+	ui.lineEdit_maxAllowedChargeA->setText("");
+	ui.lineEdit_maxAllowedDischargeA->setText("");
+	ui.lineEdit_maxV->setText("");
+	ui.lineEdit_maxVNo->setText("");
+	ui.lineEdit_minV->setText("");
+	ui.lineEdit_minVNo->setText("");
+	ui.lineEdit_vDeff->setText("");
+	ui.lineEdit_maxT->setText("");
+	ui.lineEdit_MaxTNo->setText("");
+	ui.lineEdit_minT->setText("");
+	ui.lineEdit_minTNo->setText("");
+	ui.lineEdit_TDeff->setText("");
+	ui.lineEdit_batStatet->setText("");
+	ui.lineEdit_relayState->setText("");
+
+	ui.label_cellQainYa->setPixmap(QPixmap(u8":/images/正常.ico"));
+	ui.label_cellGuoYa->setPixmap(QPixmap(u8":/images/正常.ico"));
+	ui.label_packQianYa->setPixmap(QPixmap(u8":/images/正常.ico"));
+	ui.label_packGuoYa->setPixmap(QPixmap(u8":/images/正常.ico"));
+	ui.label_chDiWen->setPixmap(QPixmap(u8":/images/正常.ico"));
+	ui.label_disDiWen->setPixmap(QPixmap(u8":/images/正常.ico"));
+	ui.label_chGaoWen->setPixmap(QPixmap(u8":/images/正常.ico"));
+	ui.label_disGaoWen->setPixmap(QPixmap(u8":/images/正常.ico"));
+	ui.label_chGuoLiu->setPixmap(QPixmap(u8":/images/正常.ico"));
+	ui.label_disGuoLiu->setPixmap(QPixmap(u8":/images/正常.ico"));
+	ui.label_tongXinGuZhang->setPixmap(QPixmap(u8":/images/正常.ico"));
+	ui.label_jueYuanGuzhang->setPixmap(QPixmap(u8":/images/正常.ico"));
+	ui.label_yaChaGuoDa->setPixmap(QPixmap(u8":/images/正常.ico"));
+	ui.label_wenChaGuoDa->setPixmap(QPixmap(u8":/images/正常.ico"));
+}

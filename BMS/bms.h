@@ -80,12 +80,6 @@ namespace BMS {
 		ERR_TEMP_DIFF = 0x2000,//温差过大
 	};
 
-	//电池和温度总数数据定义
-	struct BatTempNumDataSt {
-		int batNum;
-		int tempNum;
-	};
-
 	//单体电压数据定义
 	struct CellVolDataSt {
 		int frameNo;//帧标号0~99
@@ -96,7 +90,6 @@ namespace BMS {
 	struct CellTempDataSt {
 		int frameNo;//帧编号100~149
 		int temp[8];//8个温度数据
-
 	};
 
 	//均衡状态帧

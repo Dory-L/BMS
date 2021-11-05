@@ -16,9 +16,8 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = Q_NULLPTR);
 
-	void setupRealtimevoltage(QCustomPlot *customPlot);//初始化动态曲线
+	void setupRealtimeData(QCustomPlot *customPlotV, QCustomPlot *customPlotA);//初始化动态曲线
 signals:
-
 private:
     Ui::MainWindowClass ui;
 	Dialog* dlg;//udp对话框
@@ -26,9 +25,13 @@ private:
 
 	void iniConnect();//初始化信号槽
 	void guiInitate();//初始化界面
+	QByteArray QString2Hex(QString str);//字符串转换成16进制数
+	char ConvertHexChar(char ch);
 
 	QTimer *timer;
 	QTimer dataTimer;
+	QLabel *aimLabel;
+	QLabel *localLabel;
 
 	//单体电池和温度数量
 	int m_batTotalNum;
@@ -50,9 +53,13 @@ private:
 	QVector<int> m_volVecComplete;
 	QVector<int> m_tempVecComplete;
 
-	//数据接收计数
-	int m_volCount;
-	int m_tempCount;
+	//总体电压和总体电流
+	float m_totalVol;
+	float m_totalCur;
+
+	//fps计数
+	int m_receFps;
+	int m_sendFPs;
 
 private slots:
 	void realtimeDataSlot();////添加实时数据槽
@@ -78,8 +85,19 @@ private slots:
 	void equalStartBtn_clicked(); //均衡功能状态开启
 	void equalCloseBtn_clicked();//均衡功能状态关闭
 
+	void on_updateBtn_clicked();//刷新第一页
+	void on_pauseBtn_clicked();//暂停显示事件
+	void on_clearBtn_clicked();//清空显示事件
+	void on_manualSendBtn_clicked();//手动发送事件
+
 	//与DataCenter通信
 	void dataChange(DataCenter::DataType type);
 	void dataCenterError(QString str);
 	void messageFromDataCenter(QString str);
+	void displayReceiveData(quint8 data[], int n);
+	void displaySendData(char data[], int n);
+
+	//与dialog通信
+	void aimOK_Slot(int aimPort, QString aimIp);
+	void localOk_Slot(int localPort);
 };

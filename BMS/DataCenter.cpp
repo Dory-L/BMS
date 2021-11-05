@@ -34,7 +34,15 @@ int DataCenter::sendDataToUdp(char *pointer, int count, BMS::DataFunc func)
 	temp[4] = BOARD_NO;//板卡号
 	
 	memcpy(temp + 5, pointer, count);
+	emit sendOriginalData(temp, count + 5);
 	int ret = udpSocket->writeDatagram(temp, size, m_aimIp, m_aimPort);
+	return ret;
+}
+
+int DataCenter::manualSendToUdp(char *pointer, int count)
+{
+	emit sendOriginalData(pointer, count);
+	int ret = udpSocket->writeDatagram(pointer, count, m_aimIp, m_aimPort);
 	return ret;
 }
 
@@ -92,6 +100,7 @@ void DataCenter::dataAnalysisUdp(quint8 data)
 			memcpy(idAndData, receiveBuffer, 11);
 			recFlag |= OVER_FLAG;
 
+			emit receiveOriginalData(idAndData, 11);
 			quint8 FunctionNo;//功能号
 			FunctionNo = receiveBuffer[1];
 
@@ -354,22 +363,6 @@ void DataCenter::receiveVolMaxMin(quint8* pointer, int count)
 	volMaxMinData.minNo = temp;//min电压编号,1LSB=1mv
 
 	emit newData(DataType::VolMaxMin);
-}
-
-void DataCenter::receiveBatTempNum(quint8* pointer, int count)//读取电池和温度总数
-{
-	quint16 temp;
-	temp = (quint16)pointer[3];
-	temp <<= 8;
-	temp |= (quint16)pointer[4];
-	batTempNumData.batNum = temp;//电池总数
-
-	temp = (quint16)pointer[5];
-	temp <<= 8;
-	temp |= (quint16)pointer[6];
-	batTempNumData.tempNum = temp;//温度总数
-
-	emit newData(DataType::BatTempNum);
 }
 
 void DataCenter::receiveTempMaxMin(quint8* pointer, int count)
