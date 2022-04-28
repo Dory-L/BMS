@@ -25,7 +25,7 @@ public:
 		BaojingPara1, BaojingPara2, BaojingPara3, BaojingPara4,
 		BaohuPara1, BaohuPara2, BaohuPara3, BaohuPara4,
 		HuifuPara1, HuifuPara2, HuifuPara3, HuifuPara4,
-		VolCal, CurCal, EqualFunState};
+		VolCal, CurCal, EqualFunState, NeedEqual};
 
 	//发送数据到网络
 	int sendDataToUdp(char *pointer, int count, BMS::DataFunc func);
@@ -45,6 +45,7 @@ public:
 	BMS::CellVolDataSt	   getCellVolData() { return cellVolData; }
 	BMS::CellTempDataSt	   getCellTempData() { return cellTempData; }
 	BMS::EqualStateDataSt	getEqualStateData() { return  equalStateData; }
+	BMS::NeedEqualDataSt	getNeedEqualData() { return needEqualData; }
 
 	BMS::BatPackConfData1St	 getBatPackConfData1() { return batPackConfData1; }
 	BMS::BatPackConfData2St	  getBatPackConfData2() { return batPackConfData2; }
@@ -101,9 +102,10 @@ private:
 	void receiveSOCSOH(quint8* pointer, int count);//读取SOCSOH数据
 	void receiveBMSState(quint8* pointer, int count);//读取BMS状态数据
 	void receiveCellVol(quint8* pointer, int count);//读取单体电压数据
-	void receiveCellTemp(quint8* pointer, int count);//读取单体电压数据
+	void receiveCellTemp(quint8* pointer, int count);//读取单体温度数据
 	void receiveBatTempNum(quint8* pointer, int count);//读取电池和温度总数
 	void receiveEqualStateData(quint8* pointer, int count);//读取均衡状态
+	void receiveNeedEqual(quint8* pointer, int count);//读取需要均衡帧
 
 	void receiveBatPackConfData1(quint8* pointer, int count);//读取电池组配置信息1
 	void receiveBatPackConfData2(quint8* pointer, int count);//读取电池组配置信息2
@@ -140,6 +142,7 @@ private:
 	BMS::CellVolDataSt		  cellVolData;
 	BMS::CellTempDataSt		  cellTempData;
 	BMS::EqualStateDataSt	  equalStateData;
+	BMS::NeedEqualDataSt	  needEqualData;
 
 	BMS::BatPackConfData1St	  batPackConfData1;
 	BMS::BatPackConfData2St	  batPackConfData2;

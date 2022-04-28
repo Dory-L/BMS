@@ -9,7 +9,7 @@ int main(int argc, char *argv[])
 {
 
     QApplication a(argc, argv);
-	powerKey pk;
+	//powerKey pk;
 	//int b = pk.getUAVIndex(".\\key.dat");
 	////int b = 0;
 	//if (b != 1)

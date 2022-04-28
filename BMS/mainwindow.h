@@ -8,6 +8,8 @@
 #include "dialog.h"
 #include "DataCenter.h"
 #include "qcustomplot.h"
+#include <unordered_map>
+#include <QHash>
 
 class MainWindow : public QMainWindow
 {
@@ -48,6 +50,9 @@ private:
 	QMap<int, int> m_volMap;
 	QMap<int, int> m_tempMap;
 	QMap<int, bool> m_equalMap;
+	QHash<int, bool> m_needEqualMap;//乱序
+	//QMap<int, bool> m_needEqualMap;//有序
+	//std::unordered_map<int, bool> m_needEqualMap;
 
 	//接收完成
 	QVector<int> m_volVecComplete;
@@ -70,16 +75,20 @@ private slots:
 
 	void dataFlushBtn_clicked();//数据刷新事件
 	void dataCheckBox_stateChanged(int state);//自动刷新事件
-	void volCalBtn_clicked();//电压校准参数计算
-	void curCalBtn_clicked();//电流校准参数计算
+	//void volCalBtn_clicked();//电压校准参数计算
+	void on_volAD1CalBtn_clicked();//读取AD1计算
+	void on_volAD2CalBtn_clicked();//读取AD2计算
+	void saveVolCal_clicked();//保存电压校准参数
+	void readVolCal_clicked();//读取电压校准参数
+	//void curCalBtn_clicked();//电流校准参数计算
+	void on_curAD1CalBtn_clicked();//读取AD1计算
+	void on_curAD2CalBtn_clicked();//读取AD2计算
 
 	void readBatPackBtn_clicked();//读取电池组配置参数信息
 	void saveBatPackBtn_clicked();//保存电池组配置参数信息
 	void readYuZhiBtn_clicked();//读取阈值参数
 	void saveYuZhiBtn_clicked();//保存阈值参数
 	void confirmBtn_clicked();//继电器控制事件
-	void readVolCal_clicked();//读取电压校准参数
-	void saveVolCal_clicked();//保存电压校准参数
 	void readCurCalBtn_clicked();//读取电流校准参数
 	void saveCurCalBtn_clicked();//保存电流校准参数
 	void equalStartBtn_clicked(); //均衡功能状态开启

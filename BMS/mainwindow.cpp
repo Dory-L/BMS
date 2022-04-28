@@ -62,6 +62,15 @@ void MainWindow::guiInitate()
 	ui.tableWidget_3->horizontalHeader()->setStyleSheet("QHeaderView::section{background:skyblue;}");//表头样式
 	ui.tableWidget_3->setEditTriggers(QAbstractItemView::NoEditTriggers);//不可编辑
 
+	/*均衡状态表*/
+	header.clear();
+	header << u8"序号" << u8"均衡状态";
+	ui.tableWidget_4->setHorizontalHeaderLabels(header);
+	ui.tableWidget_4->horizontalHeader()->setStretchLastSection(true);//填充表头
+	ui.tableWidget_4->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);//均分填充
+	ui.tableWidget_4->horizontalHeader()->setStyleSheet("QHeaderView::section{background:skyblue;}");//表头样式
+	ui.tableWidget_4->setEditTriggers(QAbstractItemView::NoEditTriggers);//不可编辑
+
 	//刷新设置
 	QIntValidator* IntValidator = new QIntValidator(this);
 	IntValidator->setRange(1, 60);//可以改成（-255,255），这样就是负数
@@ -209,7 +218,7 @@ void MainWindow::aimOK_Slot(int aimPort, QString aimIp)
 {
 	dataCenter->m_aimIp = QHostAddress(aimIp);
 	dataCenter->m_aimPort = aimPort;
-	QMessageBox::information(this, u8"提示", u8"目标IP和端口绑定成功！");
+	//QMessageBox::information(this, u8"提示", u8"目标IP和端口绑定成功！");
 
 	QString aimStr = QString(u8"目标IP:%1 目标端口:%2").arg(aimIp).arg(QString::number(aimPort));
 	aimLabel->setText(aimStr);
@@ -219,7 +228,7 @@ void MainWindow::localOk_Slot(int localPort)
 {
 	if ((dataCenter->udpSocket->bind(localPort) == true))
 	{
-		QMessageBox::information(this, u8"提示", u8"UDP端口绑定成功！");
+		QMessageBox::information(this, u8"提示", u8"UDP打开成功！");
 		
 		QString localStr = QString(u8"本地端口:%1").arg(localPort);
 		localLabel->setText(localStr);
@@ -292,13 +301,21 @@ void MainWindow::dataChange(DataCenter::DataType type)
 				m_equalMap[equalState.equalNo[i]] = equalState.equalType[i];
 		}
 		break;
+	case DataCenter::NeedEqual://需要均衡
+		BMS::NeedEqualDataSt needEqual = dataCenter->getNeedEqualData();
+		for (int i = 0; i < 4; i++)
+		{
+			if (needEqual.equalNo[i] != 0)
+				m_needEqualMap[needEqual.equalNo[i]] = needEqual.equalType[i];
+		}
+		break;
 	case DataCenter::BatPackStat://电池组状态
 		BMS::BatPackStatDataSt batPack = dataCenter->getBatPackStatData();
 		/*在界面显示信息*/
 		m_totalVol = batPack.totalVol;
 		m_totalCur = batPack.totalCur;
-		ui.lineEdit_totalV->setText(QString::number(batPack.totalVol));
-		ui.lineEdit_totalA->setText(QString::number(batPack.totalCur));
+		ui.lineEdit_totalV->setText(QString::number(batPack.totalVol, 'f', 1));
+		ui.lineEdit_totalA->setText(QString::number(batPack.totalCur, 'f', 1));
 		ui.lineEdit_aveV->setText(QString::number(batPack.aveVol));
 		ui.lineEdit_vDeff->setText(QString::number(batPack.volDeff));
 		break;
@@ -489,7 +506,7 @@ void MainWindow::dataChange(DataCenter::DataType type)
 
 		ui.lineEdit_21->setText(QString::number(batPackConf3.batCurCapacity));
 		ui.lineEdit_22->setText(QString::number(batPackConf3.batCurLeftCapacity));
-		ui.lineEdit_19->setText(QString::number(batPackConf3.tempBMUNum));
+		//ui.lineEdit_19->setText(QString::number(batPackConf3.tempBMUNum));
 		ui.lineEdit_23->setText(QString::number(batPackConf3.equalStartPressure));
 		break;
 	case DataCenter::BaojingPara1:
@@ -597,13 +614,18 @@ void MainWindow::dataFlushBtn_clicked()
 	ui.tableWidget_2->setRowCount(m_tempMap.size());
 	QMap<int, int>::const_iterator iterator_2 = m_tempMap.constBegin();
 	while (iterator_2 != m_tempMap.constEnd()) {
+		if (iterator_2.value() == -40) {
+			ui.tableWidget_2->setItem(iterator_2.key(), 0, new QTableWidgetItem(QString::number(iterator_2.key() + 1)));
+			ui.tableWidget_2->setItem(iterator_2.key(), 1, new QTableWidgetItem(QString::number(iterator_2.value()) + u8"或未接"));
+			++iterator_2;
+			continue;
+		}
 		ui.tableWidget_2->setItem(iterator_2.key(), 0, new QTableWidgetItem(QString::number(iterator_2.key() + 1)));
 		ui.tableWidget_2->setItem(iterator_2.key(), 1, new QTableWidgetItem(QString::number(iterator_2.value())));
 		++iterator_2;
 	}
 
 	//均衡
-	QTableWidgetItem *item = new QTableWidgetItem();
 	ui.tableWidget_3->setRowCount(m_equalMap.size());
 	int i = 0;
 	QString item1;
@@ -611,12 +633,10 @@ void MainWindow::dataFlushBtn_clicked()
 	{
 		if (iterator_3.value())
 		{
-			item->setText(u8"主动均衡");
 			item1 = u8"主动均衡";
 		}
 		else
 		{
-			item->setText(u8"被动均衡");
 			item1 = u8"被动均衡";
 		}
 		ui.tableWidget_3->setItem(i, 0, new QTableWidgetItem(QString::number(iterator_3.key())));
@@ -624,10 +644,31 @@ void MainWindow::dataFlushBtn_clicked()
 
 		i++;
 	}
+	 
+	//需要均衡
+	ui.tableWidget_4->setRowCount(m_needEqualMap.size());
+	int j = 0;
+	QString item2;
+	for (QHash<int, bool>::const_iterator iterator_4 = m_needEqualMap.constBegin(); iterator_4 != m_needEqualMap.constEnd(); iterator_4++)
+	{
+		if (iterator_4.value())
+		{
+			item2 = u8"主动均衡";
+		}
+		else
+		{
+			item2 = u8"被动均衡";
+		}
+		ui.tableWidget_4->setItem(j, 0, new QTableWidgetItem(QString::number(iterator_4.key())));
+		ui.tableWidget_4->setItem(j, 1, new QTableWidgetItem(item2));
+
+		j++;
+	}
 
 	m_volMap.clear();
 	m_tempMap.clear();
 	m_equalMap.clear();
+	m_needEqualMap.clear();
 }
 
 //自动刷新事件
@@ -647,47 +688,47 @@ void MainWindow::dataCheckBox_stateChanged(int state)
 	}
 }
 
-//电压校准参数计算事件
-void MainWindow::volCalBtn_clicked()
-{
-	float ceH = ui.lineEdit_1->text().toFloat();
-	float ceL = ui.lineEdit_2->text().toFloat();
-	float zhenH = ui.lineEdit_3->text().toFloat();
-	float zhenL = ui.lineEdit_4->text().toFloat();
+////电压校准参数计算事件
+//void MainWindow::volCalBtn_clicked()
+//{
+//	float ceH = ui.lineEdit_1->text().toFloat();
+//	float ceL = ui.lineEdit_2->text().toFloat();
+//	float zhenH = ui.lineEdit_3->text().toFloat();
+//	float zhenL = ui.lineEdit_4->text().toFloat();
+//
+//	if (ceH == ceL)
+//	{
+//		QMessageBox::critical(this, u8"错误提示", "value error!");
+//		return;
+//	}
+//
+//	float gain = (zhenH - zhenL) / (ceH - ceL);
+//	float offset = ceL * gain - zhenL;
+//
+//	ui.lineEdit_5->setText(QString::number(offset));
+//	ui.lineEdit_6->setText(QString::number(gain, 'f', 3));
+//}
 
-	if (ceH == ceL)
-	{
-		QMessageBox::critical(this, u8"错误提示", "value error!");
-		return;
-	}
-
-	float gain = (zhenH - zhenL) / (ceH - ceL);
-	float offset = ceL * gain - zhenL;
-
-	ui.lineEdit_5->setText(QString::number(offset));
-	ui.lineEdit_6->setText(QString::number(gain, 'f', 3));
-}
-
-//电流校准参数计算事件
-void MainWindow::curCalBtn_clicked()
-{
-	float ceH = ui.lineEdit_7->text().toFloat();
-	float ceL = ui.lineEdit_8->text().toFloat();
-	float zhenH = ui.lineEdit_9->text().toFloat();
-	float zhenL = ui.lineEdit_10->text().toFloat();
-
-	if (ceH == ceL)
-	{
-		QMessageBox::critical(this, u8"错误提示", "value error!");
-		return;
-	}
-
-	float gain = (zhenH - zhenL) / (ceH - ceL);
-	float offset = ceL * gain - zhenL;
-
-	ui.lineEdit_11->setText(QString::number(offset));
-	ui.lineEdit_12->setText(QString::number(gain, 'f', 3));
-}
+////电流校准参数计算事件
+//void MainWindow::curCalBtn_clicked()
+//{
+//	float ceH = ui.lineEdit_7->text().toFloat();
+//	float ceL = ui.lineEdit_8->text().toFloat();
+//	float zhenH = ui.lineEdit_9->text().toFloat();
+//	float zhenL = ui.lineEdit_10->text().toFloat();
+//
+//	if (ceH == ceL)
+//	{
+//		QMessageBox::critical(this, u8"错误提示", "value error!");
+//		return;
+//	}
+//
+//	float gain = (zhenH - zhenL) / (ceH - ceL);
+//	float offset = ceL * gain - zhenL;
+//
+//	ui.lineEdit_11->setText(QString::number(offset));
+//	ui.lineEdit_12->setText(QString::number(gain, 'f', 3));
+//}
 
 //读取电池组配置参数信息
 void MainWindow::readBatPackBtn_clicked()
@@ -700,7 +741,7 @@ void MainWindow::readBatPackBtn_clicked()
 	ui.lineEdit_16->setText("");
 	ui.lineEdit_17->setText("");
 	ui.lineEdit_18->setText("");
-	ui.lineEdit_19->setText("");
+	//ui.lineEdit_19->setText("");
 	ui.lineEdit_20->setText("");
 	ui.lineEdit_21->setText("");
 	ui.lineEdit_22->setText("");
@@ -825,9 +866,11 @@ void MainWindow::saveBatPackBtn_clicked()
 	temp = 10 * ui.lineEdit_22->text().toFloat();
 	buf3[2] = temp >> 8;
 	buf3[3] = temp & 0xff;
-	temp = ui.lineEdit_19->text().toInt();
+	/*temp = ui.lineEdit_19->text().toInt();
 	buf3[4] = temp >> 8;
-	buf3[5] = temp & 0xff;
+	buf3[5] = temp & 0xff;*/
+	buf3[4] = 0;
+	buf3[5] = 0;
 	temp = 10 * ui.lineEdit_23->text().toFloat();
 	buf3[6] = temp >> 8;
 	buf3[7] = temp & 0xff;
@@ -1107,6 +1150,66 @@ void MainWindow::readVolCal_clicked()
 	int ret = dataCenter->sendDataToUdp(buf, 8, BMS::SendCommand);
 }
 
+//读取电压AD1计算
+void MainWindow::on_volAD1CalBtn_clicked()
+{
+	//清空显示
+	ui.lineEdit_2->setText("");
+	ui.lineEdit_4->setText("");
+	ui.lineEdit_5->setText("");
+	ui.lineEdit_6->setText("");
+
+	ui.lineEdit_1->setText(QString::number(m_totalVol, 'f', 1));
+	ui.lineEdit_5->setText(QString::number(m_totalVol, 'f', 1));
+}
+
+//读取电压AD2计算 
+void MainWindow::on_volAD2CalBtn_clicked()
+{
+	double AD2 = m_totalVol;
+	ui.lineEdit_2->setText(QString::number(AD2, 'f', 3));
+	double x = ui.lineEdit_4->text().toDouble();//真值
+	if (x == 0)
+	{
+		QMessageBox::warning(this, u8"错误提示!", "value error!");
+		return;
+	}
+
+	double offSet = ui.lineEdit_5->text().toDouble();
+	double gain = (AD2 - offSet) / x;
+	ui.lineEdit_6->setText(QString::number(gain, 'f', 3));
+}
+
+//读取电流AD1计算
+void MainWindow::on_curAD1CalBtn_clicked()
+{
+	//清空显示
+	ui.lineEdit_8->setText("");
+	ui.lineEdit_10->setText("");
+	ui.lineEdit_11->setText("");
+	ui.lineEdit_12->setText("");
+
+	ui.lineEdit_7->setText(QString::number(m_totalCur, 'f', 1));
+	ui.lineEdit_11->setText(QString::number(m_totalCur, 'f', 1));
+}
+
+//读取电流AD2计算 
+void MainWindow::on_curAD2CalBtn_clicked()
+{
+	double AD2 = m_totalCur;
+	ui.lineEdit_8->setText(QString::number(AD2, 'f', 3));
+	double x = ui.lineEdit_10->text().toDouble();//真值
+	if (x == 0)
+	{
+		QMessageBox::warning(this, u8"错误提示!", "value error!");
+		return;
+	}
+
+	double offSet = ui.lineEdit_11->text().toDouble();
+	double gain = (AD2 - offSet) / x;
+	ui.lineEdit_12->setText(QString::number(gain, 'f', 3));
+}
+
 //保存电压校准参数
 void MainWindow::saveVolCal_clicked()
 {
@@ -1179,6 +1282,7 @@ void MainWindow::equalStartBtn_clicked()
 	for (int i = 1; i < 8; i++)
 		buf[i] = 0;
 	int ret = dataCenter->sendDataToUdp(buf, 8, BMS::SendEqualFunCtrl);
+	dataCenter->sendDataToUdp(buf, 8, BMS::SendEqualFunCtrl);
 	if (ret == -1)
 		QMessageBox::warning(this, u8"错误", u8"开启失败！请检查网络连接！");
 }

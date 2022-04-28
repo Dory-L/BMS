@@ -38,9 +38,9 @@ namespace BMS {
 		EqualFunStateFunc = 0xBA,//均衡功能状态帧
 		EqualStateFunc_Head = 0xC0,//均衡状态帧头
 		EqualStateFunc_Tail = 0xCF,//均衡状态帧头
+		NeedEqualFunc = 0xFD,//需要均衡单体帧
 
 		//发送数据类型
-
 		SaveBatPackConf1 = 0xA0,//电池组配置信息帧1
 		SaveBatPackConf2 = 0xA1,//电池组配置信息帧1
 		SaveBatPackConf3 = 0xA2,//电池组配置信息帧1
@@ -94,6 +94,13 @@ namespace BMS {
 
 	//均衡状态帧
 	struct EqualStateDataSt {
+		int frameNo;//帧号
+		bool equalType[4];//均衡类型
+		quint16 equalNo[4];//电池序号
+	};
+
+	//需要均衡单体帧
+	struct NeedEqualDataSt {
 		int frameNo;//帧号
 		bool equalType[4];//均衡类型
 		quint16 equalNo[4];//电池序号

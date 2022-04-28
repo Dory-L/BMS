@@ -181,123 +181,19 @@ void DataCenter::dataAnalysisUdp(quint8 data)
 				receiveEqualFunState(idAndData, 1);
 				break;
 			default:
-				if (FunctionNo >= 0x00 && FunctionNo <= 0x63) //单体电压完整帧
-					receiveCellVol(idAndData, 11);
+				if (FunctionNo >= 0x00 && FunctionNo <= 0x63) //单体电压完整帧或者需要均衡单体帧
+				{
+					if (receiveBuffer[0] == 0xFC)//单体电压完整帧
+						receiveCellVol(idAndData, 11);
+					else if(receiveBuffer[0] == 0xFD)//需要均衡单体帧
+						receiveNeedEqual(idAndData, 11);
+				}
 				else if (FunctionNo >= 0x64 && FunctionNo <= 0x95)//单体温度完整帧
 					receiveCellTemp(idAndData, 11);
 				else if (FunctionNo >= 0xC0 && FunctionNo <= 0xCF)//均衡状态帧
 					receiveEqualStateData(idAndData, 11);
 				break;
 			}
-
-			//if (FunctionNo >= 0x00 && FunctionNo <= 0x63) //单体电压完整帧
-			//{
-			//	receiveCellVol(idAndData, 11);
-			//}
-			//else if (FunctionNo >= 0x64 && FunctionNo <= 0x95)//单体温度完整帧
-			//{
-			//	receiveCellTemp(idAndData, 11);
-			//}
-			//else if (FunctionNo == 0x96)//电压最值帧
-			//{
-			//	receiveVolMaxMin(idAndData, 11);
-			//}
-			//else if (FunctionNo == 0x97)//温度最值帧
-			//{
-			//	receiveTempMaxMin(idAndData, 11);
-			//}
-			//else if (FunctionNo == 0x98)//电池组状态信息
-			//{
-			//	receiveBatPackStat(idAndData, 11);
-			//}
-			//else if (FunctionNo == 0x99)//充放电截止信息帧
-			//{
-			//	receiveCharDisCutOff(idAndData, 11);
-			//}
-			//else if (FunctionNo == 0x9A)//SOC、SOH信息帧
-			//{
-			//	receiveSOCSOH(idAndData, 11);
-			//}
-			//else if (FunctionNo == 0x9B)//BMS状态信息
-			//{
-			//	receiveBMSState(idAndData, 11);
-			//}
-			//else if (FunctionNo == 0xA0)//电池组配置信息帧1
-			//{
-			//	receiveBatPackConfData1(idAndData, 11);
-			//}
-			//else if (FunctionNo == 0xA1)//电池组配置信息帧2
-			//{
-			//	receiveBatPackConfData2(idAndData, 11);
-			//}
-			//else if (FunctionNo == 0xA2)//电池组配置信息帧3
-			//{
-			//	receiveBatPackConfData3(idAndData, 11);
-			//}
-			//else if (FunctionNo == 0xA3)//报警阈值帧1
-			//{
-			//	receiveBaojingParaData1(idAndData, 11);
-			//}
-			//else if (FunctionNo == 0xA4)//报警阈值帧2
-			//{
-			//	receiveBaojingParaData2(idAndData, 11);
-			//}
-			//else if (FunctionNo == 0xA5)//报警阈值帧3
-			//{
-			//	receiveBaojingParaData3(idAndData, 11);
-			//}
-			//else if (FunctionNo == 0xA6)//报警阈值帧4
-			//{
-			//	receiveBaojingParaData4(idAndData, 11);
-			//}
-			//else if (FunctionNo == 0xA7)//保护阈值帧1
-			//{
-			//	receiveBaohuParaData1(idAndData, 11);
-			//}
-			//else if (FunctionNo == 0xA8)//保护阈值帧2
-			//{
-			//	receiveBaohuParaData2(idAndData, 11);
-			//}
-			//else if (FunctionNo == 0xA9)//保护阈值帧3
-			//{
-			//	receiveBaohuParaData3(idAndData, 11);
-			//}
-			//else if (FunctionNo == 0xAA)//保护阈值帧4
-			//{
-			//	receiveBaohuParaData4(idAndData, 11);
-			//}
-			//else if (FunctionNo == 0xAB)//恢复阈值帧1
-			//{
-			//	receiveHuifuParaData1(idAndData, 11);
-			//}
-			//else if (FunctionNo == 0xAC)//恢复阈值帧2
-			//{
-			//	receiveHuifuParaData2(idAndData, 11);
-			//}
-			//else if (FunctionNo == 0xAD)//恢复阈值帧3
-			//{
-			//	receiveHuifuParaData3(idAndData, 11);
-			//}
-			//else if (FunctionNo == 0xAE)//恢复阈值帧4
-			//{
-			//	receiveHuifuParaData4(idAndData, 11);
-			//}
-			//else if (FunctionNo == 0xB8)//电压校准参数帧
-			//{
-			//	receiveVolCal(idAndData, 11);
-			//}
-			//else if (FunctionNo == 0xB9)//电流校准参数帧
-			//{
-			//	receiveCurCal(idAndData, 11);
-			//}
-			//else if (FunctionNo == 0xBA)
-			//{
-			//	receiveEqualFunState(idAndData, 1);
-			//}
-			//else if (FunctionNo >= 0xC0 && FunctionNo <= 0xCF)//均衡状态帧
-			//{
-			//	receiveEqualStateData(idAndData, 11);
-			//}
 
 			recFlag &= ~OVER_FLAG;
 		}
@@ -310,20 +206,17 @@ void DataCenter::dataAnalysisUdp(quint8 data)
 //接收电池组状态信息数据
 void DataCenter::receiveBatPackStat(quint8* pointer, int count)
 {
-	//quint16 temp;
-	//temp = (quint16)pointer[2];
-	//batPackStatData.boardNo = (float)temp / 10;//板卡号，电池组不需要
-
 	quint16 temp;
 	temp = (quint16)pointer[3];
 	temp <<= 8;
 	temp |= (quint16)pointer[4];
 	batPackStatData.totalVol = (float)temp / 10;//总电压
 
-	temp = (quint16)pointer[5];
-	temp <<= 8;
-	temp |= (quint16)pointer[6];
-	batPackStatData.totalCur = (float)temp / 10;//总电流
+	qint16 temp1;
+	temp1 = (quint16)pointer[5];
+	temp1 <<= 8;
+	temp1 |= (quint16)pointer[6];
+	batPackStatData.totalCur = (float)temp1 / 10;//总电流
 
 	temp = (quint16)pointer[7];
 	temp <<= 8;
@@ -385,7 +278,7 @@ void DataCenter::receiveEqualStateData(quint8* pointer, int count)//均衡状态
 	temp = (quint16)pointer[3];
 	temp <<= 8;
 	temp |= (quint16)pointer[4];
-	equalStateData.equalType[0] = temp & 0x8000;
+	equalStateData.equalType[0] = temp & 0x8000;                     
 	equalStateData.equalNo[0] = temp & 0x7fff;
 
 	temp = (quint16)pointer[5];
@@ -407,6 +300,38 @@ void DataCenter::receiveEqualStateData(quint8* pointer, int count)//均衡状态
 	equalStateData.equalNo[3] = temp & 0x7fff;
 
 	emit newData(DataType::EqualState);
+}
+
+void DataCenter::receiveNeedEqual(quint8* pointer, int count)//需要均衡
+{
+	needEqualData.frameNo = pointer[1] - 0xC0;
+
+	quint16 temp;
+	temp = (quint16)pointer[3];
+	temp <<= 8;
+	temp |= (quint16)pointer[4];
+	needEqualData.equalType[0] = temp & 0x8000;
+	needEqualData.equalNo[0] = temp & 0x7fff;
+
+	temp = (quint16)pointer[5];
+	temp <<= 8;
+	temp |= (quint16)pointer[6];
+	needEqualData.equalType[1] = temp & 0x8000;
+	needEqualData.equalNo[1] = temp & 0x7fff;
+
+	temp = (quint16)pointer[7];
+	temp <<= 8;
+	temp |= (quint16)pointer[8];
+	needEqualData.equalType[2] = temp & 0x8000;
+	needEqualData.equalNo[2] = temp & 0x7fff;
+
+	temp = (quint16)pointer[9];
+	temp <<= 8;
+	temp |= (quint16)pointer[10];
+	needEqualData.equalType[3] = temp & 0x8000;
+	needEqualData.equalNo[3] = temp & 0x7fff;
+
+	emit newData(DataType::NeedEqual);
 }
 
 void DataCenter::receiveCharDisCutOff(quint8* pointer, int count)

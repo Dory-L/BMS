@@ -29,9 +29,7 @@ void Dialog::on_pushButton_clicked()
 	aimPort = ui.aimportlineEdit->text().toInt();
 	aimIp = ui.aimiplineEdit->text();
 	emit aimOk_Signal(aimPort, aimIp);
-}
-void Dialog::on_pushButton_2_clicked()
-{
+
 	localPort = ui.localportlineEdit->text().toInt();
 	emit localOk_Signal(localPort);
 }
